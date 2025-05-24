@@ -163,10 +163,9 @@ public class CardSelectionManager : MonoBehaviour
         PlayerInventory.AddPart(selectedPart);
         
         if (enableDebugLogging)
-            Debug.Log($"[CardSelectionManager] Added {selectedPart.partName} to inventory. Proceeding to gameplay.");
+            Debug.Log($"[CardSelectionManager] Added {selectedPart.partName} to inventory. Proceeding to minion assembly.");
         
-        // Load the gameplay scene
-        SceneManager.LoadScene("Gameplay");
+        SceneManager.LoadScene("MinionAssembly");
     }
     
     // Helper method to get current wave (can be expanded later)

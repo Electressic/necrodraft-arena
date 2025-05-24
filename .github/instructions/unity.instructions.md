@@ -22,7 +22,8 @@ applyTo: '**'
 - **Unity Scene Objects**: PascalCase with descriptive names (`MainMenuPanel`, `Card1Button`, `ZombieHeadSprite`)
 - **ScriptableObjects**: Descriptive names (`ZombieHead`, `SkeletonTorso`, `WaveOneConfig`)
 
-### File Organization Standards
+### File Organization Standards with Specific Script Locations
+
 ```
 Assets/
 ├── _Project/                    # Main project folder (underscore for top sorting)
@@ -42,15 +43,42 @@ Assets/
 │   │   └── UI/                 # UI prefabs
 │   ├── Scenes/                 # All game scenes
 │   ├── Scripts/
-│   │   ├── Core/               # GameManager, state machines
+│   │   ├── Core/               # GameManager, state machines, system managers
+│   │   │   ├── GameManager.cs
+│   │   │   ├── PlayerInventory.cs
+│   │   │   ├── MinionManager.cs
+│   │   │   └── PartDataTester.cs (testing only)
 │   │   ├── Minions/            # Minion logic, part systems
+│   │   │   ├── MinionController.cs
+│   │   │   ├── MinionVisual.cs
+│   │   │   └── PartEquipment.cs
 │   │   ├── Combat/             # Combat calculations, targeting
+│   │   │   ├── CombatManager.cs
+│   │   │   ├── Unit.cs
+│   │   │   └── DamageCalculator.cs
 │   │   ├── UI/                 # All UI controllers
-│   │   └── Data/               # ScriptableObject definitions
-│   └── ScriptableObjects/
-│       ├── Parts/              # Body part data assets
-│       ├── EnemyTypes/         # Enemy configuration
-│       └── WaveConfigs/        # Wave progression data
+│   │   │   ├── MainMenuManager.cs
+│   │   │   ├── CardSelectionManager.cs
+│   │   │   ├── MinionAssemblyManager.cs
+│   │   │   └── GameOverManager.cs
+│   │   └── Data/               # ScriptableObject definitions (SCRIPTS, not assets)
+│   │       ├── PartData.cs     # Script that defines PartData ScriptableObject
+│   │       ├── MinionData.cs   # Script that defines MinionData ScriptableObject
+│   │       ├── EnemyData.cs    # Script that defines EnemyData ScriptableObject
+│   │       ├── WaveData.cs     # Script that defines WaveData ScriptableObject
+│   │       └── Minion.cs       # Non-MonoBehaviour data class
+│   └── ScriptableObjects/      # ASSET FILES ONLY (created instances, not scripts)
+│       ├── Parts/              # PartData asset instances
+│       │   ├── ZombieHead.asset
+│       │   ├── SkeletonTorso.asset
+│       │   └── SwiftLegs.asset
+│       ├── Minions/            # MinionData asset instances  
+│       │   ├── BasicSkeleton.asset
+│       │   └── BasicZombie.asset
+│       ├── EnemyTypes/         # EnemyData asset instances
+│       │   ├── MeleeZombie.asset
+│       │   └── RangedSkeleton.asset
+│       └── WaveConfigs/        # WaveData asset instances
 ```
 
 ### Script Structure Standards

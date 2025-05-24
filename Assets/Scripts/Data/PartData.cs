@@ -7,8 +7,10 @@ public class PartData : ScriptableObject
 
     [Header("Basic Info")]
     public string partName = "New Part";
+    public Sprite icon;
+
+    [Header("Part Type")]
     public PartType type;
-    public Sprite visual;
 
     [Header("Stats")]
     public int hpBonus = 0;
