@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "MinionData", menuName = "Scriptable Objects/MinionData")]
+[CreateAssetMenu(fileName = "MinionData", menuName = "NecroDraft/MinionData")]
 public class MinionData : ScriptableObject
 {
     [Header("Basic Info")]

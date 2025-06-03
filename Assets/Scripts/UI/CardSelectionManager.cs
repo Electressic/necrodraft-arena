@@ -145,7 +145,6 @@ public class CardSelectionManager : MonoBehaviour
             
             cardButtons[i].colors = colors;
             
-            // Force the button to refresh its visual state immediately
             cardButtons[i].OnDeselect(null);
             cardButtons[i].OnSelect(null);
         }

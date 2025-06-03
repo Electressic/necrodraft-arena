@@ -20,8 +20,9 @@ public class MainMenuManager : MonoBehaviour
     public void StartGame()
     {
         PlayerInventory.ClearInventory();
+        MinionManager.ClearRoster();
 
-        SceneManager.LoadScene("CardSelection");
+        SceneManager.LoadScene("ClassSelection");
     }
     
     public void QuitGame()
