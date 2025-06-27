@@ -17,11 +17,12 @@ MonoBehaviour:
   classDescription: Masters of skeletal minions and bone-based parts.
   specialtyKeyword: Bone
   specialtyDescription: Bone parts are 50% more effective
-  startingMinionType: {fileID: 0}
+  startingMinionType: {fileID: 11400000, guid: bc39f714115294448ad138cc0c6bd5d4, type: 2}
   startingParts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 4538ea12275967b41a3f376f2ca94483, type: 2}
+  - {fileID: 11400000, guid: 252ebde95f4f4ae4a929be6e5216eae3, type: 2}
+  - {fileID: 11400000, guid: e33fd90dd18bc4149b8170a474b18370, type: 2}
+  - {fileID: 11400000, guid: 1e0021cfcc1284940bd16009abc2dcb7, type: 2}
   hpBonusMultiplier: 1.5
   attackBonusMultiplier: 1.5
   guaranteedCardPool: []
