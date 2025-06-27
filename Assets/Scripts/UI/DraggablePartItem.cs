@@ -69,7 +69,7 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvas.transform as RectTransform, 
             eventData.position, 
-            eventData.pressEventCamera, 
+            null, // Use null for Screen Space - Overlay canvases
             out localPointerPosition))
         {
             ghostRectTransform.localPosition = localPointerPosition;
@@ -145,7 +145,7 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvas.transform as RectTransform, 
                 cursorPosition, 
-                canvas.worldCamera, 
+                null, // Use null for Screen Space - Overlay canvases
                 out mousePos);
             ghostRectTransform.localPosition = mousePos;
             
@@ -178,21 +178,25 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         {
             if (textComponent != null)
             {
-                // Use current TextMeshPro API
-                textComponent.textWrappingMode = TextWrappingModes.Normal; // Changed from PreserveWhitespace
+                // Fix the text wrapping mode
+                textComponent.textWrappingMode = TextWrappingModes.NoWrap; // Changed from Normal
                 textComponent.overflowMode = TextOverflowModes.Overflow;
                 
                 // Ensure auto-sizing is disabled to prevent layout issues
                 textComponent.enableAutoSizing = false;
                 
-                // Fix RectTransform
+                // Fix RectTransform - make sure it has proper width
                 RectTransform textRect = textComponent.GetComponent<RectTransform>();
                 if (textRect != null)
                 {
+                    // Set anchors to stretch
                     textRect.anchorMin = Vector2.zero;
                     textRect.anchorMax = Vector2.one;
                     textRect.offsetMin = new Vector2(5, 5);
                     textRect.offsetMax = new Vector2(-5, -5);
+                    
+                    // Force a minimum width to prevent single-character lines
+                    textRect.sizeDelta = new Vector2(Mathf.Max(200f, textRect.sizeDelta.x), textRect.sizeDelta.y);
                     
                     // Force immediate layout update
                     LayoutRebuilder.ForceRebuildLayoutImmediate(textRect);

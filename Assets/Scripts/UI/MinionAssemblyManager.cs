@@ -55,10 +55,10 @@ public class MinionAssemblyManager : MonoBehaviour
         minionRoster = MinionManager.GetMinionRoster();
         selectedMinionIndex = MinionManager.GetSelectedMinionIndex();
         
-        // If no minions exist, create the first one
-        if (minionRoster.Count == 0 && defaultMinionData != null)
+        // If no minions exist, create the starting minion from selected class
+        if (minionRoster.Count == 0)
         {
-            CreateNewMinion("Minion 1");
+            CreateStartingMinion();
         }
         
         // Set current minion
@@ -72,7 +72,34 @@ public class MinionAssemblyManager : MonoBehaviour
             currentMinion = minionRoster[0];
             MinionManager.SetSelectedMinionIndex(0);
         }
-    }      void SetupUI()
+    }
+
+    void CreateStartingMinion()
+    {
+        NecromancerClass selectedClass = GameData.GetSelectedClass();
+        
+        if (selectedClass != null && selectedClass.startingMinionType != null)
+        {
+            // Create minion from class starting type
+            string startingName = $"{selectedClass.className} Minion";
+            Minion newMinion = new Minion(selectedClass.startingMinionType);
+            newMinion.minionName = startingName; // Set name after creation
+            
+            // Add to roster
+            MinionManager.AddMinion(newMinion);
+            minionRoster = MinionManager.GetMinionRoster(); // Refresh local copy
+            
+            if (enableDebugLogging)
+                Debug.Log($"[MinionAssemblyManager] Created starting minion: {startingName}");
+        }
+        else
+        {
+            // Fallback to default minion if no class selected
+            CreateNewMinion("Minion 1");
+        }
+    }
+
+    void SetupUI()
     {
         // Set up navigation buttons
         if (continueButton != null)
@@ -358,11 +385,27 @@ public class MinionAssemblyManager : MonoBehaviour
             }
         }
         
+        // Mark that we've completed the first wave setup if this is the initial run
+        if (GameData.IsFirstWave())
+        {
+            // Don't complete the first wave yet - that happens after combat
+            if (enableDebugLogging)
+                Debug.Log("[MinionAssemblyManager] First wave minion assembly complete. Proceeding to Wave 1 combat.");
+        }
+        
         SceneManager.LoadScene("Gameplay");
     }
       public void BackToCardSelection()
     {
-        SceneManager.LoadScene("CardSelection");
+        // Smart navigation: go to class selection if first wave, card selection otherwise
+        if (GameData.IsFirstWave())
+        {
+            SceneManager.LoadScene("ClassSelection");
+        }
+        else
+        {
+            SceneManager.LoadScene("CardSelection");
+        }
     }
     
     // Minion Management Methods

@@ -43,23 +43,23 @@ public static class GameData
         
         // Clear existing data
         PlayerInventory.ClearInventory();
-        // MinionManager.ClearRoster(); // If this method exists
+        MinionManager.ClearRoster();
         
         // Add starting parts to inventory
+        int partsAdded = 0;
         foreach (PartData part in selectedClass.startingParts)
         {
             if (part != null)
+            {
                 PlayerInventory.AddPart(part);
+                partsAdded++;
+            }
         }
         
-        // Create starting minion
-        if (selectedClass.startingMinionType != null)
-        {
-            // This will need to be implemented in MinionManager
-            // MinionManager.CreateStartingMinion(selectedClass.startingMinionType);
-        }
+        Debug.Log($"[GameData] Initialized {selectedClass.className} with {partsAdded} starting parts");
         
-        Debug.Log($"[GameData] Initialized {selectedClass.className} with {selectedClass.startingParts.Length} starting parts");
+        // Note: Starting minion will be created in MinionAssemblyManager
+        // This allows the player to see the process and customize the name
     }
     
     public static void ResetGame()
@@ -68,6 +68,19 @@ public static class GameData
         isFirstWave = true;
         currentWave = 1;
         PlayerInventory.ClearInventory();
-        // MinionManager.ClearRoster(); // If this method exists
+        MinionManager.ClearRoster();
+    }
+    
+    public static void CompleteWave()
+    {
+        if (isFirstWave)
+        {
+            CompleteFirstWave();
+        }
+        else
+        {
+            currentWave++;
+        }
+        Debug.Log($"[GameData] Wave {currentWave - 1} completed. Now on wave {currentWave}");
     }
 }

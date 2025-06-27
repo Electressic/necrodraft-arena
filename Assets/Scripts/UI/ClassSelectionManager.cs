@@ -162,17 +162,14 @@ public class ClassSelectionManager : MonoBehaviour
             return;
         }
         
-        // Store selected class (you'll need to create a GameData manager for this)
-        // For now, we'll go straight to the first wave
+        // Store selected class and initialize starting resources
         GameData.SetSelectedClass(selectedClass);
         
         if (enableDebugLogging)
-            Debug.Log($"[ClassSelectionManager] Confirmed class: {selectedClass.className}");
+            Debug.Log($"[ClassSelectionManager] Confirmed class: {selectedClass.className}. Proceeding to minion assembly.");
         
-        // TODO: Initialize player with starting minion and parts
-        // TODO: Set class bonuses
-        
-        SceneManager.LoadScene("Gameplay"); // Skip card selection for first wave
+        // Go to minion assembly to build starting roster
+        SceneManager.LoadScene("MinionAssembly");
     }
     
     void BackToMainMenu()
