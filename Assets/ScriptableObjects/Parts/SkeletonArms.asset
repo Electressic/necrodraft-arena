@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
   m_Name: SkeletonArms
   m_EditorClassIdentifier: 
-  partName: New Part
+  partName: Razor Bone Arms
+  icon: {fileID: 0}
   type: 2
-  visual: {fileID: 0}
-  hpBonus: 5
+  rarity: 1
+  hpBonus: 2
   attackBonus: 8
-  description: Bony arms with surprising strength
+  specialAbility: 6
+  abilityValue: 0
+  description: Sharpened bone claws with a 25% chance to deal critical strikes.

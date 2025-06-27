@@ -706,10 +706,14 @@ MonoBehaviour:
   continueButton: {fileID: 669266108}
   titleText: {fileID: 1762028877}
   allParts:
+  - {fileID: 11400000, guid: ed8602f7f33273140b031b5ce994099f, type: 2}
+  - {fileID: 11400000, guid: 9573b9c6fd3db624f917656203e79bc8, type: 2}
+  - {fileID: 11400000, guid: 023b35cd4c4efa24eb0cea3741a199ad, type: 2}
   - {fileID: 11400000, guid: 119b26a24e15654419325f9bacc359ea, type: 2}
   - {fileID: 11400000, guid: 252ebde95f4f4ae4a929be6e5216eae3, type: 2}
   - {fileID: 11400000, guid: 1e0021cfcc1284940bd16009abc2dcb7, type: 2}
   - {fileID: 11400000, guid: e33fd90dd18bc4149b8170a474b18370, type: 2}
+  - {fileID: 11400000, guid: f8682591716d3484bb05ee4a72f23e96, type: 2}
   - {fileID: 11400000, guid: 4538ea12275967b41a3f376f2ca94483, type: 2}
   enableDebugLogging: 1
 --- !u!1 &669266106

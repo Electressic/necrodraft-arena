@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
   m_Name: SwiftLegs
   m_EditorClassIdentifier: 
-  partName: New Part
+  partName: Lightning Legs
+  icon: {fileID: 0}
   type: 3
-  visual: {fileID: 0}
-  hpBonus: 3
-  attackBonus: 5
-  description: Fast-moving limbs
+  rarity: 2
+  hpBonus: -5
+  attackBonus: 2
+  specialAbility: 2
+  abilityValue: 0
+  description: Legs crackling with dark energy. Double move speed but reduced health.

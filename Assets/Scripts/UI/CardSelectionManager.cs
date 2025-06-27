@@ -37,9 +37,9 @@ public class CardSelectionManager : MonoBehaviour
         // Hide continue button initially
         continueButton.gameObject.SetActive(false);
         
-        // Update title based on player progress
+        // Update title for prototype (repeating Wave 1)
         if (titleText != null)
-            titleText.text = $"Choose a Body Part - Wave {GetCurrentWave()}";
+            titleText.text = "Choose a Body Part - Prepare for Battle";
     }
     
     void DrawCards()
@@ -79,14 +79,37 @@ public class CardSelectionManager : MonoBehaviour
             
         PartData part = currentCards[cardIndex];
         
-        // Format card text display
-        string cardText = $"<size=18><b>{part.partName}</b></size>\n\n" +
+        // Get rarity color for highlighting
+        Color rarityColor = part.GetRarityColor();
+        
+        // Format card text display with rarity and abilities
+        string cardText = $"<size=18><b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{part.partName}</color></b></size>\n" +
+                         $"<size=12><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()}]</color></size>\n\n" +
                          $"<color=yellow>Type:</color> {part.type}\n\n" +
-                         $"<color=green>HP:</color> +{part.hpBonus}\n" +
-                         $"<color=red>ATK:</color> +{part.attackBonus}\n\n" +
-                         $"<size=12><i>{part.description}</i></size>";
+                         $"<color=green>HP:</color> +{part.hpBonus}  " +
+                         $"<color=red>ATK:</color> +{part.attackBonus}\n\n";
+        
+        // Add special ability if it exists
+        string abilityDesc = part.GetAbilityDescription();
+        if (!string.IsNullOrEmpty(abilityDesc))
+        {
+            cardText += $"<color=orange><b>{abilityDesc}</b></color>\n\n";
+        }
+        
+        cardText += $"<size=10><i>{part.description}</i></size>";
         
         cardTexts[cardIndex].text = cardText;
+        
+        // Update button background color based on rarity
+        ColorBlock colors = cardButtons[cardIndex].colors;
+        Color buttonColor = rarityColor;
+        buttonColor.a = 0.3f; // Make it subtle
+        
+        colors.normalColor = buttonColor;
+        colors.highlightedColor = buttonColor * 1.2f;
+        colors.pressedColor = buttonColor * 0.8f;
+        
+        cardButtons[cardIndex].colors = colors;
     }
     
     void SetupButtonListeners()

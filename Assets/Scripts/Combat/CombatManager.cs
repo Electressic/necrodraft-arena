@@ -246,19 +246,12 @@ public class CombatManager : MonoBehaviour
             }
         }
         
-        // Move to next wave
-        currentWaveIndex++;
+        // For prototype: repeat wave 1 indefinitely for testing
+        // In full game, you'd increment currentWaveIndex here
+        Debug.Log("[CombatManager] Proceeding to card selection for next wave");
         
-        if (currentWaveIndex < waveConfigs.Count)
-        {
-            // Go back to card selection for next wave
-            SceneManager.LoadScene("CardSelection");
-        }
-        else
-        {
-            // All waves complete - victory!
-            HandleGameVictory();
-        }
+        // Always go to card selection after completing a wave
+        SceneManager.LoadScene("CardSelection");
     }
 
     void HandleGameOver()

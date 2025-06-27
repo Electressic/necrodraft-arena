@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BasicSkeleton
   m_EditorClassIdentifier: 
   minionName: Skeleton
-  baseSprite: {fileID: 0}
+  baseSprite: {fileID: 7482667652216324306, guid: d474711c6876c11469aa011927cb7aad, type: 3}
   baseHP: 20
   baseAttack: 5
   description: A reanimated skeleton warrior

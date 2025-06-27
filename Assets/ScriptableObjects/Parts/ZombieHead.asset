@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
   m_Name: ZombieHead
   m_EditorClassIdentifier: 
-  partName: New Part
+  partName: Vampiric Head
+  icon: {fileID: 0}
   type: 0
-  visual: {fileID: 0}
-  hpBonus: 10
-  attackBonus: 5
-  description: A rotting zombie head that boosts health
+  rarity: 1
+  hpBonus: 8
+  attackBonus: 6
+  specialAbility: 8
+  abilityValue: 0
+  description: A bloodthirsty zombie head that feeds on enemies. Heals for 25% of damage dealt.

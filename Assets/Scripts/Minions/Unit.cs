@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class Unit : MonoBehaviour
 {
@@ -22,16 +23,32 @@ public class Unit : MonoBehaviour
     private Slider healthBarSlider;
     private Vector3 healthBarOffset = new Vector3(0, 0.8f, 0);
     
+    [Header("Combat Effects")]
+    public float hitFlashDuration = 0.1f;
+    public float screenShakeIntensity = 0.2f;
+    public float screenShakeDuration = 0.3f;
+    
+    // Private fields for effects
+    private Color originalColor;
+    private bool isFlashing = false;
+    
     // Events
     public System.Action<Unit> OnDeath;
     public System.Action<Unit, int> OnTakeDamage;
+    
+    // Static reference for screen shake
+    private static Camera mainCamera;
     
     protected virtual void Awake()
     {
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
         
+        originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
         currentHP = maxHP;
+        
+        if (mainCamera == null)
+            mainCamera = Camera.main;
     }
     
     void Start()
@@ -156,6 +173,8 @@ public class Unit : MonoBehaviour
         currentHP -= damage;
         OnTakeDamage?.Invoke(this, damage);
         
+        CreateHitFlash();
+        
         UpdateHealthBar();
         
         Debug.Log($"[Unit] {gameObject.name} took {damage} damage. HP: {currentHP}/{maxHP}");
@@ -170,6 +189,9 @@ public class Unit : MonoBehaviour
     {
         isAlive = false;
         OnDeath?.Invoke(this);
+        
+        CreateScreenShake();
+        CreateDeathParticles();
         
         Debug.Log($"[Unit] {gameObject.name} died!");
         
@@ -196,8 +218,140 @@ public class Unit : MonoBehaviour
         float distance = Vector3.Distance(transform.position, target.transform.position);
         if (distance <= attackRange)
         {
+            CreateAttackEffect();
             target.TakeDamage(attackPower);
             Debug.Log($"[Unit] {gameObject.name} attacked {target.gameObject.name} for {attackPower} damage!");
         }
+    }
+    
+    protected void CreateAttackEffect()
+    {
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(AttackFlashEffect());
+        }
+    }
+    
+    IEnumerator AttackFlashEffect()
+    {
+        Color attackColor = Color.yellow;
+        Color originalAttackColor = spriteRenderer.color;
+        
+        spriteRenderer.color = attackColor;
+        yield return new WaitForSeconds(0.05f);
+        
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalAttackColor;
+    }
+
+
+    
+    void CreateHitFlash()
+    {
+        if (isFlashing || spriteRenderer == null) return;
+        
+        StartCoroutine(HitFlashEffect());
+    }
+    
+    IEnumerator HitFlashEffect()
+    {
+        isFlashing = true;
+        spriteRenderer.color = Color.white;
+        
+        yield return new WaitForSeconds(hitFlashDuration);
+        
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalColor;
+        
+        isFlashing = false;
+    }
+    
+    void CreateScreenShake()
+    {
+        if (mainCamera != null)
+            StartCoroutine(ScreenShakeEffect());
+    }
+    
+    IEnumerator ScreenShakeEffect()
+    {
+        Vector3 originalPosition = mainCamera.transform.position;
+        float elapsed = 0f;
+        
+        while (elapsed < screenShakeDuration)
+        {
+            elapsed += Time.deltaTime;
+            
+            float x = Random.Range(-1f, 1f) * screenShakeIntensity;
+            float y = Random.Range(-1f, 1f) * screenShakeIntensity;
+            
+            mainCamera.transform.position = originalPosition + new Vector3(x, y, 0);
+            
+            yield return null;
+        }
+        
+        mainCamera.transform.position = originalPosition;
+    }
+    
+    void CreateDeathParticles()
+    {
+        int particleCount = 5;
+        
+        for (int i = 0; i < particleCount; i++)
+        {
+            GameObject particle = new GameObject("DeathParticle");
+            particle.transform.position = transform.position;
+            
+            SpriteRenderer particleRenderer = particle.AddComponent<SpriteRenderer>();
+            
+            Texture2D texture = new Texture2D(16, 16);
+            Color[] pixels = new Color[16 * 16];
+            for (int p = 0; p < pixels.Length; p++)
+                pixels[p] = Color.red;
+            texture.SetPixels(pixels);
+            texture.Apply();
+            
+            Sprite particleSprite = Sprite.Create(texture, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16f);
+            particleRenderer.sprite = particleSprite;
+            particleRenderer.sortingOrder = 5;
+            
+            particle.transform.localScale = Vector3.one * 0.3f;
+            
+            Vector2 randomDirection = new Vector2(
+                Random.Range(-1f, 1f),
+                Random.Range(0.5f, 1f)
+            ).normalized;
+            
+            float speed = Random.Range(2f, 4f);
+            
+            StartCoroutine(AnimateParticle(particle, randomDirection * speed));
+        }
+    }
+    
+    IEnumerator AnimateParticle(GameObject particle, Vector2 velocity)
+    {
+        float lifetime = 1.5f;
+        float elapsed = 0f;
+        Vector3 startPos = particle.transform.position;
+        SpriteRenderer renderer = particle.GetComponent<SpriteRenderer>();
+        
+        while (elapsed < lifetime && particle != null)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / lifetime;
+            
+            particle.transform.position = startPos + (Vector3)(velocity * elapsed) + Vector3.down * (elapsed * elapsed * 2f);
+            
+            if (renderer != null)
+            {
+                Color color = renderer.color;
+                color.a = 1f - progress;
+                renderer.color = color;
+            }
+            
+            yield return null;
+        }
+        
+        if (particle != null)
+            Destroy(particle);
     }
 }

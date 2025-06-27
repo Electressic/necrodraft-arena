@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
   m_Name: SturdyTorso
   m_EditorClassIdentifier: 
-  partName: New Part
+  partName: Plate Armor Torso
+  icon: {fileID: 0}
   type: 1
-  visual: {fileID: 0}
+  rarity: 2
   hpBonus: 15
   attackBonus: 0
-  description: A thick ribcage for protection
+  specialAbility: 1
+  abilityValue: 0
+  description: Heavy armor plating that reduces all incoming damage by 1.

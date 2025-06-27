@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
-  m_Name: RottenHead
+  m_Name: RegenerationTorso
   m_EditorClassIdentifier: 
-  partName: Toxic Skull
+  partName: Living Torso
   icon: {fileID: 0}
-  type: 0
+  type: 1
   rarity: 1
-  hpBonus: 5
-  attackBonus: 4
-  specialAbility: 3
+  hpBonus: 20
+  attackBonus: -2
+  specialAbility: 4
   abilityValue: 0
-  description: A festering skull that poisons enemies, dealing damage over time.
+  description: A torso infused with dark life magic that slowly regenerates 1 HP every 3 seconds. 

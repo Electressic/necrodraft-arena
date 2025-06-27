@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
-  m_Name: RottenHead
+  m_Name: BasicSkeleton
   m_EditorClassIdentifier: 
-  partName: Toxic Skull
+  partName: Basic Bone Head
   icon: {fileID: 0}
   type: 0
-  rarity: 1
-  hpBonus: 5
-  attackBonus: 4
-  specialAbility: 3
+  rarity: 0
+  hpBonus: 6
+  attackBonus: 3
+  specialAbility: 0
   abilityValue: 0
-  description: A festering skull that poisons enemies, dealing damage over time.
+  description: A simple skeleton head with balanced stats and no special abilities. 

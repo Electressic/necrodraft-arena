@@ -17,6 +17,10 @@ public class Minion
     [Header("Calculated Stats")]
     public int totalHP;
     public int totalAttack;
+    public float totalMoveSpeedMultiplier = 1f;
+    
+    [Header("Active Special Abilities")]
+    public List<PartData.SpecialAbility> activeAbilities = new List<PartData.SpecialAbility>();
     
     // Constructor
     public Minion(MinionData data)
@@ -87,31 +91,55 @@ public class Minion
         // Start with base stats
         totalHP = baseData.baseHP;
         totalAttack = baseData.baseAttack;
+        totalMoveSpeedMultiplier = 1f;
         
-        // Add bonuses from equipped parts
-        if (headPart != null)
-        {
-            totalHP += headPart.hpBonus;
-            totalAttack += headPart.attackBonus;
-        }
+        // Clear and recalculate abilities
+        activeAbilities.Clear();
         
-        if (torsoPart != null)
-        {
-            totalHP += torsoPart.hpBonus;
-            totalAttack += torsoPart.attackBonus;
-        }
+        // Process each equipped part
+        ProcessPart(headPart);
+        ProcessPart(torsoPart);
+        ProcessPart(armsPart);
+        ProcessPart(legsPart);
+    }
+    
+    private void ProcessPart(PartData part)
+    {
+        if (part == null) return;
         
-        if (armsPart != null)
-        {
-            totalHP += armsPart.hpBonus;
-            totalAttack += armsPart.attackBonus;
-        }
+        // Add basic stat bonuses
+        totalHP += part.hpBonus;
+        totalAttack += part.attackBonus;
         
-        if (legsPart != null)
+        // Add special ability to active list
+        if (part.specialAbility != PartData.SpecialAbility.None)
         {
-            totalHP += legsPart.hpBonus;
-            totalAttack += legsPart.attackBonus;
+            activeAbilities.Add(part.specialAbility);
+            
+            // Apply immediate stat modifications for certain abilities
+            switch (part.specialAbility)
+            {
+                case PartData.SpecialAbility.Swift:
+                    totalMoveSpeedMultiplier *= 2f; // +100% move speed
+                    totalHP = Mathf.RoundToInt(totalHP * 0.75f); // -25% HP
+                    break;
+            }
         }
+    }
+    
+    public bool HasAbility(PartData.SpecialAbility ability)
+    {
+        return activeAbilities.Contains(ability);
+    }
+    
+    public int GetAbilityCount(PartData.SpecialAbility ability)
+    {
+        int count = 0;
+        foreach (var activeAbility in activeAbilities)
+        {
+            if (activeAbility == ability) count++;
+        }
+        return count;
     }
     
     public bool IsSlotEmpty(PartData.PartType partType)
@@ -127,5 +155,19 @@ public class Minion
         if (armsPart != null) count++;
         if (legsPart != null) count++;
         return count;
+    }
+    
+    public string GetAbilitiesSummary()
+    {
+        if (activeAbilities.Count == 0) return "No special abilities";
+        
+        List<string> abilityNames = new List<string>();
+        foreach (var ability in activeAbilities)
+        {
+            if (ability != PartData.SpecialAbility.None)
+                abilityNames.Add(ability.ToString());
+        }
+        
+        return string.Join(", ", abilityNames);
     }
 }
