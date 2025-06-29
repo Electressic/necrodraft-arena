@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NecroDraft Arena - Game Design Document</title>
+    <style>
+        /* Dark theme styling consistent with game aesthetic */
+        :root {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --bg-tertiary: #4A5568;
+            --bg-quaternary: #718096;
+            --text-primary: #E2E8F0;
+            --text-secondary: #A0AEC0;
+            --accent-teal: #319795;
+            --accent-gold: #fbd38d;
+            --success-green: #48BB78;
+            --warning-orange: #ED8936;
+            --error-red: #F56565;
+            --rare-blue: #4299E1;
+            --epic-purple: #9F7AEA;
+            --common-white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid var(--accent-teal);
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Navigation */
+        .nav-container {
+            margin-bottom: 40px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .nav-tab {
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-teal);
+            border-bottom-color: var(--accent-teal);
+        }
+
+        /* Content sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--accent-teal);
+            margin: 30px 0 15px 0;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; border-bottom: 2px solid var(--accent-teal); padding-bottom: 5px; }
+        h3 { font-size: 1.5rem; color: var(--accent-gold); }
+        h4 { font-size: 1.25rem; }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Code blocks */
+        pre, code {
+            background: var(--bg-primary);
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre {
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        code {
+            padding: 2px 6px;
+            font-size: 0.9em;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--accent-teal);
+            font-weight: bold;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* Status indicators */
+        .status-completed { color: var(--success-green); }
+        .status-partial { color: var(--warning-orange); }
+        .status-missing { color: var(--error-red); }
+        .rarity-common { color: var(--text-primary); }
+        .rarity-rare { color: var(--rare-blue); }
+        .rarity-epic { color: var(--epic-purple); }
+
+        /* Quick navigation */
+        .quick-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 200px;
+            z-index: 1000;
+        }
+
+        .quick-nav h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .quick-nav a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 5px 0;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .quick-nav a:hover {
+            color: var(--accent-teal);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+            
+            .quick-nav {
+                display: none;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Special styling for game-specific content */
+        .part-system {
+            border-left: 4px solid var(--accent-teal);
+            padding-left: 20px;
+        }
+
+        .ability-description {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid var(--warning-orange);
+        }
+
+        .scene-mockup {
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            white-space: pre-line;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>⚔️ NecroDraft Arena ⚔️</h1>
+            <p class="subtitle">Strategic Top-down Autobattler with Modular Minion Crafting</p>
+        </header>
+
+        <nav class="nav-container">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showSection('overview')">🎯 Overview</button>
+                <button class="nav-tab" onclick="showSection('mechanics')">🎮 Core Mechanics</button>
+                <button class="nav-tab" onclick="showSection('systems')">🧩 Systems</button>
+                <button class="nav-tab" onclick="showSection('scenes')">🎨 Scenes</button>
+                <button class="nav-tab" onclick="showSection('ui-guide')">🖼️ UI Guide</button>
+                <button class="nav-tab" onclick="showSection('status')">📊 Status</button>
+            </div>
+        </nav>
+
+        <div class="quick-nav">
+            <h4>Quick Navigation</h4>
+            <a href="#vision">Vision Statement</a>
+            <a href="#game-loop">Core Game Loop</a>
+            <a href="#part-system">Part System</a>
+            <a href="#set-bonuses">Set Bonuses</a>
+            <a href="#scenes">Scene Documentation</a>
+            <a href="#current-status">Current Status</a>
+        </div>
+
+        <!-- Overview Section -->
+        <section id="overview" class="content-section active">
+            <h2 id="vision">🎯 Vision Statement</h2>
+            <div class="card">
+                <p><strong>NecroDraft Arena</strong> is a strategic top-down autobattler where players become necromancers, crafting unique undead minions from modular body parts. Each part carries special abilities that combine in powerful ways, creating deep tactical decisions in both drafting and assembly phases.</p>
+            </div>
+
+            <h3>🎮 What Makes It Unique</h3>
+            <ul>
+                <li><strong>Modular Minion Crafting</strong>: Unlike traditional autobattlers, units aren't fixed - they're assembled from interchangeable parts</li>
+                <li><strong>Set Bonus Strategy</strong>: Abilities require multiple parts of the same type, encouraging focused builds vs. versatility</li>
+                <li><strong>Thematic Consistency</strong>: Part themes (Skeleton, Zombie, Metal) have distinct identities and restrictions</li>
+                <li><strong>Visual Progression</strong>: Minions physically change as you equip different parts (future feature)</li>
+            </ul>
+
+            <h3 id="game-loop">🔄 Core Game Loop</h3>
+            <div class="scene-mockup">📋 Draft Phase
+    ↓ Choose 1 of 3 random parts
+🔧 Assembly Phase  
+    ↓ Equip parts to minions for abilities
+⚔️ Combat Phase
+    ↓ Watch minions battle automatically
+📊 Results Phase
+    ↓ Victory = better rewards, Defeat = retry/adjust
+🔄 Repeat → Stronger enemies, better parts</div>
+
+            <h3>🎯 Target Audience</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Primary</h4>
+                    <p>Strategy game enthusiasts who enjoy deck-building and autobattler mechanics</p>
+                </div>
+                <div class="card">
+                    <h4>Secondary</h4>
+                    <p>Players who like customization and progression systems</p>
+                </div>
+                <div class="card">
+                    <h4>Age Range</h4>
+                    <p>13+ (dark fantasy theme but not graphic)</p>
+                </div>
+            </div>
+
+            <h3>📐 Scope Boundaries</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>✅ What's In Scope</h4>
+                    <ul>
+                        <li>Core autobattler combat with special abilities</li>
+                        <li>Modular part system with set bonuses</li>
+                        <li>3-5 waves of increasing difficulty</li>
+                        <li>6-10 part types across 2-3 themes</li>
+                        <li>Polished UI for drafting and assembly</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>❌ What's Out of Scope (For Now)</h4>
+                    <ul>
+                        <li>Real-time strategy elements during combat</li>
+                        <li>Story mode or narrative campaigns</li>
+                        <li>Multiplayer functionality</li>
+                        <li>Mobile platforms (PC-first development)</li>
+                        <li>3D graphics or complex animations</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Mechanics Section -->
+        <section id="mechanics" class="content-section">
+            <h2>🎮 Core Mechanics</h2>
+            
+            <h3>🧩 Part-Based Minion System</h3>
+            <div class="part-system">
+                <p>Every minion has <strong>4 equipment slots</strong> that define their capabilities:</p>
+                <ul>
+                    <li><strong>Head</strong>: Often provides mental/precision abilities (CriticalStrike, etc.)</li>
+                    <li><strong>Torso</strong>: Often provides defensive/sustain abilities (Armored, Regeneration)</li>
+                    <li><strong>Arms</strong>: Often provides offensive abilities (Vampiric, Thorns)</li>
+                    <li><strong>Legs</strong>: Often provides mobility abilities (Swift, etc.)</li>
+                </ul>
+            </div>
+
+            <h3>📊 Stat Calculation</h3>
+            <pre><code>Final HP = Base HP + Head HP + Torso HP + Arms HP + Legs HP
+Final ATK = Base ATK + Head ATK + Torso ATK + Arms ATK + Legs ATK
+Final Speed = Base Speed × Speed Multipliers (from abilities)</code></pre>
+
+            <h3>⚔️ Set Bonus Strategy</h3>
+            <div class="ability-description">
+                <h4>Key Mechanic: Abilities only activate with <strong>2 or more parts</strong> of the same type.</h4>
+                <pre><code>1 Vampiric Part   → Only base stats (HP/ATK bonus)
+2 Vampiric Parts  → Ability activates at Tier 1
+3 Vampiric Parts  → Ability activates at Tier 2  
+4 Vampiric Parts  → Ability activates at Tier 3 (maximum power)</code></pre>
+            </div>
+
+            <h3>🎲 Draft Strategy</h3>
+            <p>Players must choose <strong>1 of 3</strong> random parts each turn, creating meaningful decisions:</p>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Safe Strategy</h4>
+                    <p>Pick highest rarity regardless of synergy</p>
+                </div>
+                <div class="card">
+                    <h4>Greedy Strategy</h4>
+                    <p>Commit early to specific set bonuses</p>
+                </div>
+                <div class="card">
+                    <h4>Flexible Strategy</h4>
+                    <p>Adapt based on what's offered</p>
+                </div>
+                <div class="card">
+                    <h4>Counter Strategy</h4>
+                    <p>Draft to counter expected enemy types</p>
+                </div>
+            </div>
+
+            <h3>⚔️ Combat System</h3>
+            <p>Combat is <strong>fully automated</strong> - players influence through preparation, not execution:</p>
+            <ul>
+                <li><strong>Unit AI</strong>: Simple targeting and movement rules</li>
+                <li><strong>Positioning</strong>: Units spawn in formation, move to engage</li>
+                <li><strong>Turn Order</strong>: Based on speed, modified by abilities</li>
+                <li><strong>Victory Condition</strong>: Last army standing wins</li>
+            </ul>
+        </section>
+
+        <!-- Systems Section -->
+        <section id="systems" class="content-section">
+            <h2 id="part-system">🧩 Part System</h2>
+            
+            <h3>🎨 Theme Characteristics</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>💀 Skeleton Parts</h4>
+                    <p><strong>Identity</strong>: Precise, brittle, bone-based undead</p>
+                    <p><strong>Stat Profile</strong>: Moderate HP, High ATK</p>
+                    <p><strong>Signature Abilities</strong>: CriticalStrike, Swift</p>
+                    <p><strong>Restrictions</strong>: ❌ Cannot have Armored, Regeneration, or Vampiric</p>
+                </div>
+                <div class="card">
+                    <h4>🧟 Zombie Parts</h4>
+                    <p><strong>Identity</strong>: Decaying, resilient, flesh-based undead</p>
+                    <p><strong>Stat Profile</strong>: High HP, Moderate ATK</p>
+                    <p><strong>Signature Abilities</strong>: Vampiric, Poison, Regeneration</p>
+                    <p><strong>Restrictions</strong>: ❌ Cannot have Swift or CriticalStrike</p>
+                </div>
+                <div class="card">
+                    <h4>🤖 Metal Parts</h4>
+                    <p><strong>Identity</strong>: Mechanical, armored, artificial constructs</p>
+                    <p><strong>Stat Profile</strong>: Very High HP, Low ATK</p>
+                    <p><strong>Signature Abilities</strong>: Armored, Thorns</p>
+                    <p><strong>Restrictions</strong>: ❌ Cannot have Poison, Vampiric, or Regeneration</p>
+                </div>
+                <div class="card">
+                    <h4>🌟 Cursed Parts</h4>
+                    <p><strong>Identity</strong>: Dark magic, high risk/reward, forbidden arts</p>
+                    <p><strong>Stat Profile</strong>: Extreme stats (very high or very low)</p>
+                    <p><strong>Signature Abilities</strong>: Berserker, unique cursed effects</p>
+                    <p><strong>Special Rules</strong>: ⚠️ May have negative effects alongside positives</p>
+                </div>
+            </div>
+
+            <h3 id="set-bonuses">💎 Set Bonuses & Abilities</h3>
+            
+            <h4>Tier 1 - Activation at 2 Parts</h4>
+            <div class="ability-description">
+                <h5 class="rarity-rare">Vampiric</h5>
+                <ul>
+                    <li><strong>2 Parts</strong>: Heal for 25% of damage dealt</li>
+                    <li><strong>3 Parts</strong>: Heal for 35% of damage dealt</li>
+                    <li><strong>4 Parts</strong>: Heal for 50% of damage dealt</li>
+                </ul>
+                <p><strong>Strategy</strong>: Sustain fighter, good against chip damage</p>
+            </div>
+
+            <div class="ability-description">
+                <h5 class="rarity-rare">Armored</h5>
+                <ul>
+                    <li><strong>2 Parts</strong>: Reduce incoming damage by 1 (minimum 1)</li>
+                    <li><strong>3 Parts</strong>: Reduce incoming damage by 2 (minimum 1)</li>
+                    <li><strong>4 Parts</strong>: Reduce incoming damage by 3 (minimum 1)</li>
+                </ul>
+                <p><strong>Strategy</strong>: Tank, counters low-damage rapid attacks</p>
+            </div>
+
+            <div class="ability-description">
+                <h5 class="rarity-rare">Critical Strike</h5>
+                <ul>
+                    <li><strong>2 Parts</strong>: 25% chance for double damage</li>
+                    <li><strong>3 Parts</strong>: 35% chance for double damage</li>
+                    <li><strong>4 Parts</strong>: 25% chance for <strong>triple</strong> damage</li>
+                </ul>
+                <p><strong>Strategy</strong>: Burst damage, high variance</p>
+            </div>
+
+            <h4>Tier 2 - Activation at 3 Parts</h4>
+            <div class="ability-description">
+                <h5 class="rarity-epic">Swift</h5>
+                <ul>
+                    <li><strong>3 Parts</strong>: +100% move speed, -25% HP</li>
+                    <li><strong>4 Parts</strong>: +150% move speed, -20% HP (reduced penalty)</li>
+                </ul>
+                <p><strong>Strategy</strong>: Hit and run, flanking maneuvers</p>
+            </div>
+
+            <div class="ability-description">
+                <h5 class="rarity-epic">Berserker</h5>
+                <ul>
+                    <li><strong>3 Parts</strong>: +50% attack speed when below 50% HP</li>
+                    <li><strong>4 Parts</strong>: +75% attack speed when below 60% HP</li>
+                </ul>
+                <p><strong>Strategy</strong>: Comeback mechanic, high risk/reward</p>
+            </div>
+
+            <h3>🧮 Rarity System</h3>
+            <table>
+                <tr>
+                    <th>Rarity</th>
+                    <th>Drop Rate</th>
+                    <th>Stat Range</th>
+                    <th>Abilities</th>
+                </tr>
+                <tr>
+                    <td class="rarity-common">Common</td>
+                    <td>60%</td>
+                    <td>+3-6 HP, +1-3 ATK</td>
+                    <td>50% chance for basic abilities</td>
+                </tr>
+                <tr>
+                    <td class="rarity-rare">Rare</td>
+                    <td>30%</td>
+                    <td>+5-10 HP, +2-5 ATK</td>
+                    <td>Always has one standard ability</td>
+                </tr>
+                <tr>
+                    <td class="rarity-epic">Epic</td>
+                    <td>10%</td>
+                    <td>+8-15 HP, +4-8 ATK</td>
+                    <td>Powerful abilities or multiple abilities</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Scenes Section -->
+        <section id="scenes" class="content-section">
+            <h2 id="scenes">🎨 Scene Documentation</h2>
+            
+            <h3>🎮 Scene Flow</h3>
+            <div class="scene-mockup">MainMenu → ClassSelection → CardSelection → MinionAssembly → Gameplay → GameOver
+   ↑                                                                                              ↓
+   ←─────────────────────────────────────────────────────────────────────────────────────────←</div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🏠 Main Menu</h4>
+                    <p>First impression and gateway to the game. Features atmospheric dark fantasy styling with clear navigation options.</p>
+                    <ul>
+                        <li>Start New Game</li>
+                        <li>Continue (if save exists)</li>
+                        <li>Settings & Credits</li>
+                        <li>Atmospheric background with particles</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>🧙 Class Selection</h4>
+                    <p>Choose your necromancer archetype with unique starting bonuses and playstyle guidance.</p>
+                    <ul>
+                        <li><strong>Bone Weaver</strong>: Skeleton-focused, precision and speed</li>
+                        <li><strong>Flesh Sculptor</strong>: Zombie-focused, sustain and resilience</li>
+                        <li><strong>Soul Binder</strong>: Mixed approach, balanced and flexible</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>🃏 Card Selection</h4>
+                    <p>The primary "deck building" phase where strategic decisions are made about which abilities to pursue.</p>
+                    <ul>
+                        <li>Choose 1 of 3 random parts</li>
+                        <li>Rarity evaluation and set planning</li>
+                        <li>Visual feedback for decision-making</li>
+                        <li>Progress tracking and inventory display</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>🔧 Minion Assembly</h4>
+                    <p>Strategic planning becomes tactical reality. Drag and drop parts onto minions for optimal builds.</p>
+                    <ul>
+                        <li>Drag-and-drop part equipping</li>
+                        <li>Real-time stat calculation</li>
+                        <li>Set bonus progress tracking</li>
+                        <li>Army optimization tools</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>⚔️ Gameplay</h4>
+                    <p>Watch your carefully crafted army battle autonomously with rich visual feedback and combat information.</p>
+                    <ul>
+                        <li>Autonomous autobattler combat</li>
+                        <li>Real-time unit status and health bars</li>
+                        <li>Combat log with detailed play-by-play</li>
+                        <li>Speed controls and battle management</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>🏆 Game Over</h4>
+                    <p>Resolution and reflection after each run, providing meaningful feedback and clear paths forward.</p>
+                    <ul>
+                        <li><strong>Victory</strong>: Celebration, rewards, progression</li>
+                        <li><strong>Defeat</strong>: Learning opportunities, strategy advice</li>
+                        <li>Performance summary and statistics</li>
+                        <li>Army showcase and analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- UI Guide Section -->
+        <section id="ui-guide" class="content-section">
+            <h2>🖼️ UI Style Guide</h2>
+            
+            <h3>🎨 Visual Identity</h3>
+            <p>NecroDraft Arena's UI should feel <strong>dark fantasy meets tactical strategy</strong> - professional and readable while maintaining the necromantic theme. Think "spellbook interface" rather than "horror game".</p>
+
+            <h3>🎯 Design Principles</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Clarity First</h4>
+                    <ul>
+                        <li>Information hierarchy with clear visual structure</li>
+                        <li>Consistent layouts across similar functions</li>
+                        <li>Readable typography with appropriate sizing and contrast</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Thematic Integration</h4>
+                    <ul>
+                        <li>Dark palette with deep blues, purples, and grays</li>
+                        <li>Medieval touches with subtle borders and mystical elements</li>
+                        <li>Modern UX following contemporary usability standards</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Scalable System</h4>
+                    <ul>
+                        <li>Component library with reusable UI elements</li>
+                        <li>Pixel-perfect crisp edges and consistent grid alignment</li>
+                        <li>Modular design for easy expansion</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🎨 Color Palette</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Primary Colors</h4>
+                    <ul>
+                        <li><span style="color: #2D3748">■</span> Dark Background: #2D3748</li>
+                        <li><span style="color: #4A5568">■</span> Medium Background: #4A5568</li>
+                        <li><span style="color: #718096">■</span> Light Background: #718096</li>
+                        <li><span style="color: #319795">■</span> Accent Teal: #319795</li>
+                        <li><span style="color: #E2E8F0">■</span> Text Light: #E2E8F0</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Supporting Colors</h4>
+                    <ul>
+                        <li><span style="color: #48BB78">■</span> Success Green: #48BB78</li>
+                        <li><span style="color: #ED8936">■</span> Warning Orange: #ED8936</li>
+                        <li><span style="color: #F56565">■</span> Error Red: #F56565</li>
+                        <li><span style="color: #4299E1">■</span> Rare Blue: #4299E1</li>
+                        <li><span style="color: #9F7AEA">■</span> Epic Purple: #9F7AEA</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔧 Component Specifications</h3>
+            <div class="ability-description">
+                <h4>Button System</h4>
+                <ul>
+                    <li><strong>Small Button</strong>: 24x8 pixels (icons, compact actions)</li>
+                    <li><strong>Medium Button</strong>: 32x12 pixels (standard actions)</li>
+                    <li><strong>Large Button</strong>: 48x16 pixels (primary actions)</li>
+                    <li><strong>Wide Button</strong>: 64x12 pixels (text-heavy actions)</li>
+                </ul>
+            </div>
+
+            <div class="ability-description">
+                <h4>Card Template (128x180 pixels)</h4>
+                <pre><code>┌─── 128px ───┐
+├─────────────┤ ← 8px margin
+│   [ICON]    │ ← 48x48 icon area
+├─────────────┤ ← 8px spacing
+│   Title     │ ← 16px text height
+│   Subtitle  │ ← 12px text height  
+├─────────────┤ ← 8px spacing
+│   Stats     │ ← 24px stats area
+├─────────────┤ ← 8px spacing
+│  Abilities  │ ← 32px ability area
+├─────────────┤ ← 8px spacing
+│  [BUTTON]   │ ← 16px button height
+└─────────────┘ ← 8px margin</code></pre>
+            </div>
+
+            <h3>📝 Typography Standards</h3>
+            <table>
+                <tr>
+                    <th>Element</th>
+                    <th>Size</th>
+                    <th>Weight</th>
+                    <th>Color</th>
+                </tr>
+                <tr>
+                    <td>Headers</td>
+                    <td>16px</td>
+                    <td>Bold</td>
+                    <td>Accent Teal (#319795)</td>
+                </tr>
+                <tr>
+                    <td>Body Text</td>
+                    <td>12px</td>
+                    <td>Regular</td>
+                    <td>Text Light (#E2E8F0)</td>
+                </tr>
+                <tr>
+                    <td>Captions</td>
+                    <td>8px</td>
+                    <td>Regular</td>
+                    <td>Text Secondary (#A0AEC0)</td>
+                </tr>
+                <tr>
+                    <td>UI Labels</td>
+                    <td>10px</td>
+                    <td>All-caps</td>
+                    <td>Text Secondary (#A0AEC0)</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Status Section -->
+        <section id="status" class="content-section">
+            <h2 id="current-status">📊 Current Development Status</h2>
+            
+            <h3>✅ Implemented Features (Working)</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4 class="status-completed">Phase 1: Combat Juice Effects ✅</h4>
+                    <ul>
+                        <li>Hit Flash Effects: Units flash white when taking damage</li>
+                        <li>Attack Flash Effects: Units flash yellow when attacking</li>
+                        <li>Screen Shake: Camera shakes when units die for impact</li>
+                        <li>Death Particles: Red particle explosions on unit death</li>
+                        <li>Health Bars: Follow units, color-coded by health percentage</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-completed">Phase 2: Special Abilities & Rarity System ✅</h4>
+                    <ul>
+                        <li>Rarity System: 3-tier rarity (Common/Rare/Epic) with color coding</li>
+                        <li>9 Special Abilities: All implemented and functional</li>
+                        <li>UI Integration: All screens show rarity colors and ability names</li>
+                        <li>Combat Effects: Visual feedback for crits, poison DoT, healing</li>
+                        <li>Set Bonus System: Currently activates with any 1+ part (needs updating)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-completed">Core Systems ✅</h4>
+                    <ul>
+                        <li>Part Data System: ScriptableObject-based part definition</li>
+                        <li>Minion Assembly: Drag-and-drop part equipping interface</li>
+                        <li>Card Selection: 3-choice draft mechanic with rarity distribution</li>
+                        <li>Basic Combat: Autobattler with unit movement and targeting</li>
+                        <li>Scene Flow: Complete game loop from menu to game over</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-completed">Technical Foundation ✅</h4>
+                    <ul>
+                        <li>Unity 6+ Project: 2D Core template with URP</li>
+                        <li>ScriptableObject Architecture: Modular data-driven design</li>
+                        <li>Component System: Clean separation of concerns</li>
+                        <li>Asset Organization: Structured folder hierarchy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔄 Partially Implemented</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4 class="status-partial">UI Polish</h4>
+                    <p><strong>Status</strong>: Basic functionality works, needs professional pixel art replacement</p>
+                    <ul>
+                        <li>✅ Basic Functionality: All screens work and are navigable</li>
+                        <li>✅ Rarity Colors: Implemented but could be more polished</li>
+                        <li>✅ Text Readability: Recently improved after user feedback</li>
+                        <li>❌ Needs: Professional pixel art UI replacement</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-partial">Balance System</h4>
+                    <p><strong>Status</strong>: Core functionality works, needs mathematical tuning</p>
+                    <ul>
+                        <li>✅ Basic Stats: HP/ATK bonuses work correctly</li>
+                        <li>✅ Ability Effects: All abilities trigger and provide feedback</li>
+                        <li>❌ Needs: Mathematical balance tuning, set bonus thresholds</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>❌ Not Yet Implemented</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4 class="status-missing">Priority 1: Set Bonus Requirements</h4>
+                    <p><strong>Current</strong>: Abilities activate with 1+ parts</p>
+                    <p><strong>Needed</strong>: 2+ parts required for activation</p>
+                    <p><strong>Impact</strong>: Core strategic mechanic, highest priority</p>
+                </div>
+                <div class="card">
+                    <h4 class="status-missing">Priority 2: Thematic Organization</h4>
+                    <p><strong>Current</strong>: Parts organized by rarity</p>
+                    <p><strong>Needed</strong>: Theme-first organization (Skeleton/Zombie/Metal folders)</p>
+                    <p><strong>Impact</strong>: Content scalability and logical restrictions</p>
+                </div>
+                <div class="card">
+                    <h4 class="status-missing">Priority 3: Advanced UI</h4>
+                    <p><strong>Current</strong>: Unity's default UI components</p>
+                    <p><strong>Needed</strong>: Custom pixel art UI matching style guide</p>
+                    <p><strong>Impact</strong>: Visual polish and professional appearance</p>
+                </div>
+                <div class="card">
+                    <h4 class="status-missing">Priority 4: Expanded Content</h4>
+                    <p><strong>Current</strong>: ~8 parts, basic variety</p>
+                    <p><strong>Needed</strong>: 20+ parts across multiple themes</p>
+                    <p><strong>Impact</strong>: Strategic depth and replayability</p>
+                </div>
+            </div>
+
+            <h3>🎯 Next Development Priorities</h3>
+            <div class="card">
+                <h4>Immediate (Next Session)</h4>
+                <ol>
+                    <li><strong>Fix Set Bonus System</strong>: Require 2+ parts for ability activation</li>
+                    <li><strong>Update Part Assets</strong>: Reorganize by theme instead of rarity</li>
+                    <li><strong>Create New Parts</strong>: Add more variety within each theme</li>
+                    <li><strong>Balance Tuning</strong>: Adjust stats and ability values</li>
+                </ol>
+            </div>
+
+            <h3>🐛 Known Issues</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Gameplay Issues</h4>
+                    <ul>
+                        <li><strong>Set Bonuses Too Easy</strong>: Single parts activate abilities (design issue)</li>
+                        <li><strong>Limited Strategy</strong>: Not enough part variety for diverse builds</li>
+                        <li><strong>Balance Problems</strong>: Some abilities overpowered, others underused</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Technical Issues</h4>
+                    <ul>
+                        <li><strong>UI Readability</strong>: Default Unity UI not optimal for pixel art style</li>
+                        <li><strong>Asset Organization</strong>: Current structure doesn't support thematic approach</li>
+                        <li><strong>Code Coupling</strong>: Some UI managers have tight dependencies</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📊 Quality Assessment</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4 class="status-completed">What's Working Well ✅</h4>
+                    <ul>
+                        <li>Core Loop: Draft → Assemble → Combat → Repeat is engaging</li>
+                        <li>Visual Feedback: Combat feels impactful with current effects</li>
+                        <li>Data Architecture: ScriptableObject system is flexible and extensible</li>
+                        <li>Code Quality: Generally clean, follows established patterns</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-partial">What Needs Work ⚠️</h4>
+                    <ul>
+                        <li>Strategic Depth: Too easy to activate abilities</li>
+                        <li>Visual Polish: UI doesn't match game's potential</li>
+                        <li>Content Volume: Need more parts for interesting decisions</li>
+                        <li>Balance: Mathematical relationship between parts unclear</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4 class="status-missing">What's Missing ❌</h4>
+                    <ul>
+                        <li>Set Bonus Strategy: Core mechanic not properly implemented</li>
+                        <li>Thematic Identity: Parts don't feel distinct by theme</li>
+                        <li>Professional UI: Placeholder interface needs replacement</li>
+                        <li>Sound Design: Completely missing audio layer</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add some interactive polish
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

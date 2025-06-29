@@ -190,15 +190,30 @@ public class MinionAssemblyManager : MonoBehaviour
     {
         int unequippedCount = totalCount - equippedCount;
         
-        // Create part text with better count display
-        string partText = $"<b>{part.partName}</b> x{unequippedCount}";
+        // Get rarity color for part name
+        Color rarityColor = part.GetRarityColor();
+        
+        // Create simplified, readable part text
+        string partText = $"<color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}><b>{part.partName}</b></color>";
+        if (unequippedCount > 1)
+        {
+            partText += $" x{unequippedCount}";
+        }
         if (equippedCount > 0)
         {
             partText += $" ({equippedCount} equipped)";
         }
-        partText += $"\n({part.type})\n+{part.hpBonus} HP\n+{part.attackBonus} ATK";
         
-        // Choose appropriate color based on availability
+        partText += $"\n<color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()}]</color>";
+        partText += $"\n<color=green>+{part.hpBonus} HP</color>  <color=red>+{part.attackBonus} ATK</color>";
+        
+        // Add ability name only (not full description) if it exists
+        if (part.specialAbility != PartData.SpecialAbility.None)
+        {
+            partText += $"\n<color=orange><b>{part.specialAbility}</b></color>";
+        }
+        
+        // Choose appropriate text color based on availability
         Color textColor = Color.white;
         if (unequippedCount == 0)
         {
@@ -211,6 +226,15 @@ public class MinionAssemblyManager : MonoBehaviour
         }
         
         GameObject item = CreateGridItem(partText, textColor);
+        
+        // Add rarity-colored background
+        Image itemImage = item.GetComponent<Image>();
+        if (itemImage != null)
+        {
+            Color bgColor = rarityColor;
+            bgColor.a = 0.15f; // Very subtle background
+            itemImage.color = bgColor;
+        }
         
         // Only add DraggablePartItem if we have unequipped copies
         if (unequippedCount > 0)
@@ -258,10 +282,10 @@ public class MinionAssemblyManager : MonoBehaviour
         
         TMPro.TextMeshProUGUI textComponent = textChild.AddComponent<TMPro.TextMeshProUGUI>();
         textComponent.text = text;
-        textComponent.fontSize = 10;
+        textComponent.fontSize = 12;
         textComponent.color = textColor;
         textComponent.alignment = TMPro.TextAlignmentOptions.Center;
-        textComponent.textWrappingMode = TMPro.TextWrappingModes.Normal; // FIXED: Updated property
+        textComponent.textWrappingMode = TMPro.TextWrappingModes.Normal;
         
         // Set up text positioning to fill the button
         RectTransform textRect = textChild.GetComponent<RectTransform>();

@@ -198,7 +198,10 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
                 ColorBlock colors = button.colors;
                 if (equippedPart != null)
                 {
-                    colors.normalColor = Color.green; // Equipped
+                    // Use rarity color for equipped parts
+                    Color rarityColor = equippedPart.GetRarityColor();
+                    rarityColor.a = 0.7f;
+                    colors.normalColor = rarityColor;
                 }
                 else
                 {
@@ -236,13 +239,29 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
         
         if (equippedPart != null)
         {
-            slotText.text = $"<b>{partType}</b>: {equippedPart.partName}\n<size=8>+{equippedPart.hpBonus} HP | +{equippedPart.attackBonus} ATK</size>";
+            // Get rarity color
+            Color rarityColor = equippedPart.GetRarityColor();
+            
+            // Build simplified text with rarity and abilities
+            string slotDisplayText = $"<b>{partType}</b>: <color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{equippedPart.partName}</color>";
+            slotDisplayText += $"\n<size=8><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{equippedPart.GetRarityText()}]</color></size>";
+            slotDisplayText += $"\n<size=9>+{equippedPart.hpBonus} HP | +{equippedPart.attackBonus} ATK</size>";
+            
+            // Add ability name only (not full description) if it exists
+            if (equippedPart.specialAbility != PartData.SpecialAbility.None)
+            {
+                slotDisplayText += $"\n<size=8><color=orange><b>{equippedPart.specialAbility}</b></color></size>";
+            }
+            
+            slotText.text = slotDisplayText;
             slotText.color = Color.black;
             
-            // Change button color to indicate it's equipped
+            // Change button color based on rarity
             ColorBlock colors = slotButton.colors;
-            colors.normalColor = Color.green;
-            colors.highlightedColor = Color.cyan;
+            Color buttonColor = rarityColor;
+            buttonColor.a = 0.7f; // More visible than inventory
+            colors.normalColor = buttonColor;
+            colors.highlightedColor = buttonColor * 1.3f;
             slotButton.colors = colors;
         }
         else

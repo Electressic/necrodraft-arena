@@ -89,21 +89,21 @@ public class CardSelectionManager : MonoBehaviour
                          $"<color=green>HP:</color> +{part.hpBonus}  " +
                          $"<color=red>ATK:</color> +{part.attackBonus}\n\n";
         
-        // Add special ability if it exists
+        // Add special ability if it exists (smaller text)
         string abilityDesc = part.GetAbilityDescription();
         if (!string.IsNullOrEmpty(abilityDesc))
         {
-            cardText += $"<color=orange><b>{abilityDesc}</b></color>\n\n";
+            cardText += $"<size=10><color=orange><b>{abilityDesc}</b></color></size>\n\n";
         }
         
         cardText += $"<size=10><i>{part.description}</i></size>";
         
         cardTexts[cardIndex].text = cardText;
         
-        // Update button background color based on rarity
+        // Set initial rarity background color
         ColorBlock colors = cardButtons[cardIndex].colors;
         Color buttonColor = rarityColor;
-        buttonColor.a = 0.3f; // Make it subtle
+        buttonColor.a = 0.3f; // Subtle background
         
         colors.normalColor = buttonColor;
         colors.highlightedColor = buttonColor * 1.2f;
@@ -151,15 +151,26 @@ public class CardSelectionManager : MonoBehaviour
             
             if (i == selectedCardIndex)
             {
-                // Highlight selected card
+                // Highlight selected card with bright green border effect
                 colors.normalColor = Color.green;
                 colors.highlightedColor = new Color(0.8f, 1f, 0.8f);
                 colors.pressedColor = new Color(0.7f, 0.9f, 0.7f);
                 colors.selectedColor = Color.green;
             }
+            else if (currentCards[i] != null)
+            {
+                // Preserve rarity colors for non-selected cards
+                Color rarityColor = currentCards[i].GetRarityColor();
+                rarityColor.a = 0.3f; // Keep subtle background
+                
+                colors.normalColor = rarityColor;
+                colors.highlightedColor = rarityColor * 1.2f;
+                colors.pressedColor = rarityColor * 0.8f;
+                colors.selectedColor = rarityColor;
+            }
             else
             {
-                // Reset other cards to default
+                // Default for empty cards
                 colors.normalColor = Color.white;
                 colors.highlightedColor = new Color(0.96f, 0.96f, 0.96f);
                 colors.pressedColor = new Color(0.78f, 0.78f, 0.78f);
@@ -167,9 +178,6 @@ public class CardSelectionManager : MonoBehaviour
             }
             
             cardButtons[i].colors = colors;
-            
-            cardButtons[i].OnDeselect(null);
-            cardButtons[i].OnSelect(null);
         }
     }
     
