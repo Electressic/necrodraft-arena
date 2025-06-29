@@ -12,7 +12,11 @@ public class MinionAssemblyManager : MonoBehaviour
     public Transform inventoryContentPanel;  // The grid container for inventory (right side)
     public Button continueButton;
     public Button backButton;
+    public Button cardSelectionButton;  // NEW: Button to open card selection overlay
     public TMPro.TextMeshProUGUI selectedPartText; // Drag a Text element here
+    
+    [Header("Card Selection Overlay")]
+    public CardSelectionOverlay cardSelectionOverlay;
 
     [Header("Minion List UI")]  // NEW SECTION
     public Transform minionListContent;      // The content area for minion entries (left side)
@@ -44,6 +48,9 @@ public class MinionAssemblyManager : MonoBehaviour
         SetupUI();
         RefreshInventoryDisplay();
         UpdateMinionDisplay();
+        
+        // Initialize card selection button state based on wave progression
+        UpdateCardSelectionButtonState();
         
         if (enableDebugLogging)
             Debug.Log("[MinionAssemblyManager] Assembly scene initialized");
@@ -85,6 +92,9 @@ public class MinionAssemblyManager : MonoBehaviour
             Minion newMinion = new Minion(selectedClass.startingMinionType);
             newMinion.minionName = startingName; // Set name after creation
             
+            // Auto-equip the class starting parts
+            AutoEquipStartingParts(newMinion, selectedClass);
+            
             // Add to roster
             MinionManager.AddMinion(newMinion);
             minionRoster = MinionManager.GetMinionRoster(); // Refresh local copy
@@ -98,6 +108,38 @@ public class MinionAssemblyManager : MonoBehaviour
             CreateNewMinion("Minion 1");
         }
     }
+    
+    void AutoEquipStartingParts(Minion minion, NecromancerClass necroClass)
+    {
+        if (necroClass.startingParts == null) return;
+        
+        int partsEquipped = 0;
+        
+        // Try to equip each starting part to the appropriate slot
+        foreach (PartData part in necroClass.startingParts)
+        {
+            if (part != null)
+            {
+                // Check if this part slot is already filled
+                PartData currentPart = minion.GetEquippedPart(part.type);
+                if (currentPart == null)
+                {
+                    // Equip the part
+                    minion.EquipPart(part);
+                    partsEquipped++;
+                    
+                    if (enableDebugLogging)
+                        Debug.Log($"[MinionAssemblyManager] Auto-equipped {part.partName} to {minion.minionName}");
+                }
+            }
+        }
+        
+        // Force stats recalculation after auto-equipping
+        minion.CalculateStats();
+        
+        if (enableDebugLogging)
+            Debug.Log($"[MinionAssemblyManager] Auto-equipped {partsEquipped} starting parts to {minion.minionName}. Final stats: {minion.totalHP} HP, {minion.totalAttack} ATK");
+    }
 
     void SetupUI()
     {
@@ -105,7 +147,9 @@ public class MinionAssemblyManager : MonoBehaviour
         if (continueButton != null)
             continueButton.onClick.AddListener(ContinueToGameplay);
         if (backButton != null)
-            backButton.onClick.AddListener(BackToCardSelection);
+            backButton.onClick.AddListener(BackToClassSelection);
+        if (cardSelectionButton != null)
+            cardSelectionButton.onClick.AddListener(ShowCardSelection);
         
         // Set up create minion button
         if (createMinionButton != null)
@@ -115,6 +159,9 @@ public class MinionAssemblyManager : MonoBehaviour
         if (titleText != null)
             titleText.text = "Assemble Your Minions";
             
+        // Set up card selection overlay events
+        SetupCardSelectionOverlay();
+        
         // Refresh minion selector
         RefreshMinionSelector();
     }      void RefreshInventoryDisplay()
@@ -205,7 +252,7 @@ public class MinionAssemblyManager : MonoBehaviour
         }
         
         partText += $"\n<color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()}]</color>";
-        partText += $"\n<color=green>+{part.hpBonus} HP</color>  <color=red>+{part.attackBonus} ATK</color>";
+        partText += $"\n<color=green>+{part.GetHPBonus()} HP</color>  <color=red>+{part.GetAttackBonus()} ATK</color>";
         
         // Add ability name only (not full description) if it exists
         if (part.specialAbility != PartData.SpecialAbility.None)
@@ -360,13 +407,16 @@ public class MinionAssemblyManager : MonoBehaviour
         // Unequip the part
         currentMinion.UnequipPart(part.type);
         
+        // Force stats recalculation
+        currentMinion.CalculateStats();
+        
         // Part remains in PlayerInventory, just refresh displays
         RefreshInventoryDisplay();
-        RefreshMinionSelector();  // ADD THIS LINE
+        RefreshMinionSelector();
         UpdateMinionDisplay();
         
         if (enableDebugLogging)
-            Debug.Log($"[MinionAssemblyManager] Unequipped {part.partName} from {part.type} slot");
+            Debug.Log($"[MinionAssemblyManager] Unequipped {part.partName} from {part.type} slot. New stats: {currentMinion.totalHP} HP, {currentMinion.totalAttack} ATK");
     }
     
     void ClearInventoryDisplay()
@@ -419,20 +469,156 @@ public class MinionAssemblyManager : MonoBehaviour
         
         SceneManager.LoadScene("Gameplay");
     }
-      public void BackToCardSelection()
+      public void BackToClassSelection()
     {
-        // Smart navigation: go to class selection if first wave, card selection otherwise
+        // Save minion selection before leaving
+        MinionManager.SetSelectedMinionIndex(selectedMinionIndex);
+        
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Returning to class selection");
+        
+        // Return to class selection scene
+        SceneManager.LoadScene("ClassSelection");
+    }
+    
+    public void ShowCardSelection()
+    {
+        if (cardSelectionOverlay == null)
+        {
+            Debug.LogWarning("[MinionAssemblyManager] Card selection overlay not assigned!");
+            return;
+        }
+        
+        // Check if card selection is available (only after first wave)
         if (GameData.IsFirstWave())
         {
-            SceneManager.LoadScene("ClassSelection");
+            if (enableDebugLogging)
+                Debug.Log("[MinionAssemblyManager] Card selection not available - complete first wave first");
+            return;
         }
-        else
+        
+        // Check if already selected a part this session
+        if (cardSelectionOverlay.HasSelectedPartThisSession())
         {
-            SceneManager.LoadScene("CardSelection");
+            if (enableDebugLogging)
+                Debug.Log("[MinionAssemblyManager] Card selection blocked - already selected a part this session");
+            return;
+        }
+        
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Showing card selection overlay");
+        
+        cardSelectionOverlay.ShowOverlay("Choose a Body Part", "Select one card to add to your collection");
+        
+        // Update button state
+        UpdateCardSelectionButtonState();
+    }
+    
+    void SetupCardSelectionOverlay()
+    {
+        if (cardSelectionOverlay != null)
+        {
+            // Subscribe to overlay events
+            cardSelectionOverlay.OnPartSelected += OnPartSelectedFromOverlay;
+            cardSelectionOverlay.OnOverlayClosed += OnCardSelectionClosed;
+            cardSelectionOverlay.OnOverlayHidden += OnCardSelectionHidden;
+            cardSelectionOverlay.OnOverlayResumed += OnCardSelectionResumed;
+            
+            if (enableDebugLogging)
+                Debug.Log("[MinionAssemblyManager] Card selection overlay events set up");
         }
     }
     
-    // Minion Management Methods
+    void OnPartSelectedFromOverlay(PartData selectedPart)
+    {
+        if (selectedPart == null) return;
+        
+        // Add the selected part to inventory
+        PlayerInventory.AddPart(selectedPart);
+        
+        // Refresh the inventory display
+        RefreshInventoryDisplay();
+        
+        // Update button state to greyed out
+        UpdateCardSelectionButtonState();
+        
+        if (enableDebugLogging)
+            Debug.Log($"[MinionAssemblyManager] Added {selectedPart.partName} to inventory from overlay");
+    }
+    
+    void OnCardSelectionClosed()
+    {
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Card selection overlay closed");
+    }
+    
+    void OnCardSelectionHidden()
+    {
+        // Update button text to show "Resume Card Selection"
+        UpdateCardSelectionButtonState();
+        
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Card selection overlay temporarily hidden");
+    }
+    
+    void OnCardSelectionResumed()
+    {
+        // Update button text back to normal
+        UpdateCardSelectionButtonState();
+        
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Card selection overlay resumed");
+    }
+    
+        void UpdateCardSelectionButtonState()
+    {
+        if (cardSelectionButton == null) return;
+        
+        bool isFirstWave = GameData.IsFirstWave();
+        bool hasSelected = cardSelectionOverlay != null && cardSelectionOverlay.HasSelectedPartThisSession();
+        
+        // Button availability logic:
+        // - Disabled if it's the first wave (no card selection until after first wave)
+        // - Disabled if already selected a part this session
+        bool buttonEnabled = !isFirstWave && !hasSelected;
+        cardSelectionButton.interactable = buttonEnabled;
+        
+        // Update button text and color
+        TMPro.TextMeshProUGUI buttonText = cardSelectionButton.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        if (buttonText != null)
+        {
+            if (isFirstWave)
+            {
+                buttonText.text = "Complete Wave 1 First";
+                buttonText.color = new Color(0.5f, 0.5f, 0.5f, 1f); // Dark grey
+            }
+            else if (hasSelected)
+            {
+                buttonText.text = "Part Selected";
+                buttonText.color = new Color(0.6f, 0.6f, 0.6f, 1f); // Light grey
+            }
+            else
+            {
+                buttonText.text = "Get New Parts";
+                buttonText.color = Color.white; // Normal color
+            }
+        }
+    }
+     
+     // Public method to reset card selection for new wave/session
+     public void ResetCardSelectionForNewWave()
+     {
+         if (cardSelectionOverlay != null)
+         {
+             cardSelectionOverlay.ResetSessionState();
+             UpdateCardSelectionButtonState();
+             
+             if (enableDebugLogging)
+                 Debug.Log("[MinionAssemblyManager] Card selection reset for new wave");
+         }
+     }
+      
+      // Minion Management Methods
     void CreateNewMinion(string minionName = "")
     {
         if (!MinionManager.CanAddMoreMinions())

@@ -5,6 +5,7 @@ public class MinionController : Unit
 {
     [Header("Minion Specific")]
     public Minion minionData;
+    public MinionVisual minionVisual;
     private Unit currentTarget;
     private float lastAttackTime;
     
@@ -19,6 +20,12 @@ public class MinionController : Unit
         base.Awake();
         originalMoveSpeed = moveSpeed;
         originalAttackSpeed = attackSpeed;
+        
+        // Get or add visual component
+        if (minionVisual == null)
+            minionVisual = GetComponent<MinionVisual>();
+        if (minionVisual == null)
+            minionVisual = gameObject.AddComponent<MinionVisual>();
     }
     
     void Update()
@@ -47,7 +54,7 @@ public class MinionController : Unit
         if (minionData == null) return;
         
         // Regeneration
-        if (minionData.HasAbility(PartData.SpecialAbility.Regeneration))
+        if (minionData.HasSetBonus(PartData.SpecialAbility.Regeneration))
         {
             if (Time.time >= lastRegenTime + 3f && currentHP < maxHP)
             {
@@ -58,7 +65,7 @@ public class MinionController : Unit
         }
         
         // Berserker ability
-        if (minionData.HasAbility(PartData.SpecialAbility.Berserker))
+        if (minionData.HasSetBonus(PartData.SpecialAbility.Berserker))
         {
             bool shouldBeBerserker = (float)currentHP / maxHP < 0.5f;
             if (shouldBeBerserker && !berserkerActive)
@@ -83,7 +90,7 @@ public class MinionController : Unit
         int modifiedDamage = damage;
         
         // Armored ability
-        if (minionData != null && minionData.HasAbility(PartData.SpecialAbility.Armored))
+        if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Armored))
         {
             modifiedDamage = Mathf.Max(1, damage - 1);
             if (modifiedDamage != damage)
@@ -94,8 +101,14 @@ public class MinionController : Unit
         
         base.TakeDamage(modifiedDamage);
         
+        // Apply damage visual effect
+        if (minionVisual != null && damage > 0)
+        {
+            minionVisual.ApplyVisualEffect("damage");
+        }
+        
         // Thorns ability - reflect damage to attacker
-        if (minionData != null && minionData.HasAbility(PartData.SpecialAbility.Thorns) && damage > 0)
+        if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Thorns) && damage > 0)
         {
             if (currentTarget != null && currentTarget.isAlive)
             {
@@ -117,7 +130,7 @@ public class MinionController : Unit
             int finalDamage = attackPower;
             
             // Critical Strike ability
-            if (minionData != null && minionData.HasAbility(PartData.SpecialAbility.CriticalStrike))
+            if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.CriticalStrike))
             {
                 if (Random.Range(0f, 1f) <= 0.25f) // 25% chance
                 {
@@ -130,18 +143,23 @@ public class MinionController : Unit
             target.TakeDamage(finalDamage);
             
             // Vampiric ability
-            if (minionData != null && minionData.HasAbility(PartData.SpecialAbility.Vampiric))
+            if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Vampiric))
             {
                 int healAmount = Mathf.RoundToInt(finalDamage * 0.25f);
                 if (healAmount > 0 && currentHP < maxHP)
                 {
                     TakeDamage(-healAmount); // Negative damage = healing
+                    
+                    // Show heal visual effect
+                    if (minionVisual != null)
+                        minionVisual.ApplyVisualEffect("heal");
+                        
                     Debug.Log($"[{gameObject.name}] Vampiric healing for {healAmount} HP!");
                 }
             }
             
             // Poison ability
-            if (minionData != null && minionData.HasAbility(PartData.SpecialAbility.Poison))
+            if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Poison))
             {
                 StartCoroutine(ApplyPoison(target));
             }
@@ -172,7 +190,11 @@ public class MinionController : Unit
     
     void CreateCriticalHitEffect()
     {
-        if (spriteRenderer != null)
+        if (minionVisual != null)
+        {
+            minionVisual.ApplyVisualEffect("critical");
+        }
+        else if (spriteRenderer != null)
         {
             StartCoroutine(CriticalFlashEffect());
         }
@@ -203,9 +225,14 @@ public class MinionController : Unit
         // Use minion's calculated stats
         Initialize(minion.totalHP, minion.totalAttack, finalMoveSpeed);
         
-        // Update visual appearance
-        if (spriteRenderer != null && minion.baseData.baseSprite != null)
+        // Update visual appearance using the new modular system
+        if (minionVisual != null)
         {
+            minionVisual.UpdateVisuals(minion);
+        }
+        else if (spriteRenderer != null && minion.baseData.baseSprite != null)
+        {
+            // Fallback to old system if visual component not available
             spriteRenderer.sprite = minion.baseData.baseSprite;
         }
         

@@ -1,15 +1,22 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewPart", menuName = "Scriptable Objects/PartData")]
+[CreateAssetMenu(fileName = "NewPart", menuName = "NecroDraft/Dynamic Part")]
 public class PartData : ScriptableObject
 {
     public enum PartType { Head, Torso, Arms, Legs }
     
     public enum PartRarity 
     { 
-        Common,     // White - Basic parts
-        Rare,       // Blue - Good abilities  
-        Epic        // Purple - Powerful abilities
+        Common,     // White - Basic parts, 1-2 stats
+        Rare,       // Blue - Good parts, 2-3 stats  
+        Epic        // Purple - Powerful parts, 3-4 stats
+    }
+    
+    public enum PartTheme
+    {
+        Skeleton,   // Fast, fragile, precise (speed, range, crit focused)
+        Zombie,     // Tanky, slow, sustaining (health, defense, regen focused)
+        Ghost       // Ethereal, magical, balanced (speed + magic, balanced stats)
     }
     
     public enum SpecialAbility 
@@ -25,25 +32,70 @@ public class PartData : ScriptableObject
         Vampiric        // Heal for 25% of damage dealt
     }
 
+    [System.Serializable]
+    public class PartStats
+    {
+        [Header("Core Stats")]
+        public int health = 0;              // Flat HP bonus
+        public int attack = 0;              // Flat attack bonus
+        public int defense = 0;             // Flat damage reduction
+        
+        [Header("Combat Stats")]
+        public float attackSpeed = 0.0f;    // Attack speed multiplier bonus (0.0 to 1.0+)
+        public float critChance = 0.0f;     // Critical hit chance (0.0 to 1.0)
+        public float critDamage = 0.0f;     // Critical damage multiplier bonus
+        
+        [Header("Movement Stats")]
+        public float moveSpeed = 0.0f;      // Move speed multiplier bonus
+        public float range = 0.0f;          // Attack range multiplier bonus
+        
+        public bool HasAnyStats()
+        {
+            return health > 0 || attack > 0 || defense > 0 || 
+                   attackSpeed > 0 || critChance > 0 || critDamage > 0 || 
+                   moveSpeed > 0 || range > 0;
+        }
+        
+        public string GetStatsText()
+        {
+            var stats = new System.Collections.Generic.List<string>();
+            
+            if (health > 0) stats.Add($"+{health} HP");
+            if (attack > 0) stats.Add($"+{attack} ATK");
+            if (defense > 0) stats.Add($"+{defense} DEF");
+            if (attackSpeed > 0) stats.Add($"+{(attackSpeed*100):F0}% ATK Speed");
+            if (critChance > 0) stats.Add($"+{(critChance*100):F0}% Crit Chance");
+            if (critDamage > 0) stats.Add($"+{(critDamage*100):F0}% Crit DMG");
+            if (moveSpeed > 0) stats.Add($"+{(moveSpeed*100):F0}% Move Speed");
+            if (range > 0) stats.Add($"+{(range*100):F0}% Range");
+            
+            return stats.Count > 0 ? string.Join(", ", stats) : "No stat bonuses";
+        }
+    }
+
     [Header("Basic Info")]
     public string partName = "New Part";
     public Sprite icon;
 
-    [Header("Part Type & Rarity")]
+    [Header("Part Type & Theme")]
     public PartType type;
+    public PartTheme theme;
     public PartRarity rarity = PartRarity.Common;
 
-    [Header("Stats")]
-    public int hpBonus = 0;
-    public int attackBonus = 0;
+    [Header("Dynamic Stats")]
+    public PartStats stats = new PartStats();
 
-    [Header("Special Ability")]
+    [Header("Set Bonus Ability")]
     public SpecialAbility specialAbility = SpecialAbility.None;
-    public float abilityValue = 0f; // Used for ability parameters (damage, healing, etc.)
+    public float abilityValue = 0f; // Used for ability parameters
 
     [Header("Description")]
     [TextArea(2, 4)]
     public string description;
+    
+    [Header("Generation (Editor Only)")]
+    [Tooltip("Call GenerateRandomStats() from code or create a custom editor script")]
+    public bool needsGeneration = false;
     
     // Helper methods
     public Color GetRarityColor()
@@ -57,9 +109,25 @@ public class PartData : ScriptableObject
         }
     }
     
+    public Color GetThemeColor()
+    {
+        switch (theme)
+        {
+            case PartTheme.Skeleton: return new Color(0.9f, 0.9f, 0.8f); // Bone white
+            case PartTheme.Zombie: return new Color(0.4f, 0.6f, 0.3f);   // Sickly green
+            case PartTheme.Ghost: return new Color(0.7f, 0.8f, 1f);      // Ethereal blue
+            default: return Color.white;
+        }
+    }
+    
     public string GetRarityText()
     {
         return rarity.ToString();
+    }
+    
+    public string GetThemeText()
+    {
+        return theme.ToString();
     }
     
     public string GetAbilityDescription()
@@ -78,4 +146,59 @@ public class PartData : ScriptableObject
             default: return "";
         }
     }
+    
+    public string GetFullDescription()
+    {
+        string desc = $"{partName} ({theme} {rarity})\n";
+        desc += stats.GetStatsText() + "\n";
+        
+        if (specialAbility != SpecialAbility.None)
+            desc += "Set Bonus: " + GetAbilityDescription();
+            
+        return desc;
+    }
+    
+    // Generate random stats based on theme and rarity (for editor use)
+    public void GenerateRandomStats()
+    {
+        stats = PartStatsGenerator.Generate(theme, rarity, type);
+    }
+    
+    // Migration helper - converts old format to new format
+    public void MigrateLegacyStats()
+    {
+        if (hpBonus > 0 && stats.health == 0)
+        {
+            stats.health = hpBonus;
+        }
+        if (attackBonus > 0 && stats.attack == 0)
+        {
+            stats.attack = attackBonus;
+        }
+        
+        // Ensure we have some basic stats if both old and new are empty
+        if (!stats.HasAnyStats() && hpBonus == 0 && attackBonus == 0)
+        {
+            GenerateRandomStats();
+        }
+    }
+    
+    // Awake-like function to ensure data integrity
+    void OnValidate()
+    {
+        // Auto-migrate legacy stats when asset is loaded/validated
+        if (Application.isPlaying)
+        {
+            MigrateLegacyStats();
+        }
+    }
+    
+    // Legacy format support (for old part assets)
+    [Header("Legacy Stats (Old Format - Will be migrated)")]
+    public int hpBonus = 0;
+    public int attackBonus = 0;
+    
+    // Backwards compatibility for existing systems
+    public int GetHPBonus() => stats.health > 0 ? stats.health : hpBonus;
+    public int GetAttackBonus() => stats.attack > 0 ? stats.attack : attackBonus;
 }

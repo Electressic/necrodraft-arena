@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8278289920157505677}
   - component: {fileID: 6135623733911867374}
   - component: {fileID: 5647788951323785297}
+  - component: {fileID: 2298907677303448760}
   m_Layer: 0
   m_Name: BasicMinion
   m_TagString: Untagged
@@ -145,6 +146,9 @@ MonoBehaviour:
   attackRange: 1.5
   isAlive: 1
   spriteRenderer: {fileID: 8278289920157505677}
+  hitFlashDuration: 0.1
+  screenShakeIntensity: 0.2
+  screenShakeDuration: 0.3
   minionData:
     minionName: 
     baseData: {fileID: 0}
@@ -154,3 +158,31 @@ MonoBehaviour:
     legsPart: {fileID: 0}
     totalHP: 0
     totalAttack: 0
+    totalDefense: 0
+    totalAttackSpeed: 0
+    totalCritChance: 0
+    totalCritDamage: 0
+    totalMoveSpeed: 0
+    totalRange: 0
+    activeAbilities: 
+  minionVisual: {fileID: 0}
+--- !u!114 &2298907677303448760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5579702520279116776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2244dd42fed686e4d90ab5b17561a02a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseSpriteRenderer: {fileID: 0}
+  partContainer: {fileID: 0}
+  baseLayerOrder: 0
+  headLayerOrder: 4
+  torsoLayerOrder: 1
+  armsLayerOrder: 2
+  legsLayerOrder: 3
+  enableDebugLogging: 0

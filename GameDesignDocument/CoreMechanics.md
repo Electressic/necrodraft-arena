@@ -13,26 +13,41 @@ NecroDraft Arena combines **deck-building strategy** with **autobattler tactics*
 5. PROGRESSION    → Stronger enemies, better rewards
 ```
 
-## 🧩 Part-Based Minion System
+## 🧩 Dynamic Part-Based Minion System
 
 ### Equipment Slots
 Every minion has **4 equipment slots** that define their capabilities:
 
-- **Head**: Often provides mental/precision abilities (CriticalStrike, etc.)
-- **Torso**: Often provides defensive/sustain abilities (Armored, Regeneration)
-- **Arms**: Often provides offensive abilities (Vampiric, Thorns)
-- **Legs**: Often provides mobility abilities (Swift, etc.)
+- **Head**: Often provides mental/precision abilities (CriticalStrike, range bonuses)
+- **Torso**: Often provides defensive/sustain abilities (Armored, health bonuses)
+- **Arms**: Often provides offensive abilities (Vampiric, attack bonuses)
+- **Legs**: Often provides mobility abilities (Swift, speed bonuses)
 
-### Stat Calculation
+### Dynamic Stat Generation
+**Key Innovation**: Every part has **procedurally generated stats** based on theme and rarity:
+
 ```
-Final HP = Base HP + Head HP + Torso HP + Arms HP + Legs HP
-Final ATK = Base ATK + Head ATK + Torso ATK + Arms ATK + Legs ATK
-Final Speed = Base Speed × Speed Multipliers (from abilities)
+Core Stats: Health, Attack, Defense (flat bonuses)
+Combat Stats: Attack Speed, Crit Chance, Crit Damage (% bonuses)
+Movement Stats: Move Speed, Range (% bonuses)
 ```
+
+### Thematic Stat Affinities
+**Skeleton Theme** (Fast, fragile, precise):
+- High chance: Speed (90%), Crit Chance (80%), Range (70%)
+- Low chance: Health (20%), Defense (10%)
+
+**Zombie Theme** (Tanky, slow, sustaining):
+- High chance: Health (90%), Defense (80%)
+- Low chance: Speed (20%), Crit Chance (20%)
+
+**Ghost Theme** (Ethereal, balanced, magical):
+- Balanced: All stats have medium-high chances (40-70%)
+- Specialty: High Crit Damage (70%), supernatural abilities
 
 ### Modular Flexibility
 - **Mix & Match**: Any part can go in any slot (no type restrictions)
-- **Theme Freedom**: Can combine Skeleton + Zombie + Metal parts
+- **Theme Freedom**: Can combine Skeleton + Zombie + Ghost parts
 - **Strategic Choices**: Sacrifice one stat type for another based on strategy
 
 ## ⚔️ Set Bonus Strategy
@@ -41,23 +56,28 @@ Final Speed = Base Speed × Speed Multipliers (from abilities)
 **Key Mechanic**: Abilities only activate with **2 or more parts** of the same type.
 
 ```
-1 Vampiric Part   → Only base stats (HP/ATK bonus)
-2 Vampiric Parts  → Ability activates at Tier 1
-3 Vampiric Parts  → Ability activates at Tier 2  
-4 Vampiric Parts  → Ability activates at Tier 3 (maximum power)
+1 Part        → Only stat bonuses apply (no set bonus)
+2 Parts       → Set bonus activates at Tier I
+3 Parts       → Set bonus activates at Tier II (enhanced effect)
+4 Parts       → Set bonus activates at Tier III (maximum power)
 ```
 
 ### Strategic Implications
 - **Commitment vs. Flexibility**: Dedicate slots for power, or spread for versatility
-- **Build Archetypes**: Tank (4 Armored), Vampire (4 Vampiric), Hybrid (2+2)
+- **Build Archetypes**: Tank (4 Armored), Speed (4 Swift), Hybrid (2+2)
 - **Counter-Play**: Every focused build has specific weaknesses
 
-### Power Scaling
+### Power Scaling Examples
 ```
-Single Parts: 1.0x power (just stats)
-2-Part Set:   1.5x power (ability activation)
-3-Part Set:   2.0x power (enhanced effect)
-4-Part Set:   3.0x power (maximum effect, often with trade-offs)
+Armored Set Bonus:
+2 Parts: -1 damage taken (minimum 1)
+3 Parts: -2 damage taken (minimum 1) 
+4 Parts: -3 damage taken (minimum 1)
+
+Critical Strike Set Bonus:
+2 Parts: 25% chance for double damage
+3 Parts: 35% chance for double damage
+4 Parts: 50% chance for double damage
 ```
 
 ## 🎲 Draft Strategy

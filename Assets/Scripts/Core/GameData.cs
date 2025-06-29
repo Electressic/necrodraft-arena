@@ -82,5 +82,19 @@ public static class GameData
             currentWave++;
         }
         Debug.Log($"[GameData] Wave {currentWave - 1} completed. Now on wave {currentWave}");
+        
+        // Notify that a wave was completed (for card selection reset)
+        NotifyWaveCompleted();
+    }
+    
+    // Called to reset systems when a wave is completed
+    private static void NotifyWaveCompleted()
+    {
+        // Find and notify MinionAssemblyManager if it exists in scene
+        MinionAssemblyManager assemblyManager = UnityEngine.Object.FindAnyObjectByType<MinionAssemblyManager>();
+        if (assemblyManager != null)
+        {
+            assemblyManager.ResetCardSelectionForNewWave();
+        }
     }
 }

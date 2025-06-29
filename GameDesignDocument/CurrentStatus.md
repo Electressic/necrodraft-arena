@@ -16,10 +16,17 @@
   - Thorns, Berserker, Regeneration, and basic set
 - **UI Integration**: All screens show rarity colors and ability names
 - **Combat Effects**: Visual feedback for crits, poison DoT, healing
-- **Set Bonus System**: Currently activates with any 1+ part (needs updating)
+
+### Phase 3: Dynamic Parts System ✅ **NEW!**
+- **Proper Set Bonus Requirements**: Now requires 2+ parts for activation (FIXED!)
+- **3 Thematic Undead Types**: Skeleton (fast/precise), Zombie (tanky/slow), Ghost (balanced/magical)
+- **8 Dynamic Stat Types**: Health, Attack, Defense, Attack Speed, Crit Chance, Crit Damage, Move Speed, Range
+- **Procedural Generation**: Parts generate random stats based on theme affinities and rarity
+- **Thematic Stat Affinities**: Each theme has high/medium/low chances for different stats
+- **Rarity-Based Power**: Common (1-2 stats), Rare (2-3 stats), Epic (3-4 stats) with scaling values
 
 ### Core Systems ✅
-- **Part Data System**: ScriptableObject-based part definition
+- **Dynamic Part Data System**: Expanded ScriptableObject-based part system with theme generation
 - **Minion Assembly**: Drag-and-drop part equipping interface
 - **Card Selection**: 3-choice draft mechanic with rarity distribution
 - **Basic Combat**: Autobattler with unit movement and targeting
@@ -27,7 +34,7 @@
 
 ### Technical Foundation ✅
 - **Unity 6+ Project**: 2D Core template with URP
-- **ScriptableObject Architecture**: Modular data-driven design
+- **ScriptableObject Architecture**: Modular data-driven design with dynamic generation
 - **Component System**: Clean separation of concerns
 - **Asset Organization**: Structured folder hierarchy
 
@@ -51,60 +58,60 @@
 
 ## ❌ Not Yet Implemented
 
-### Priority 1: Set Bonus Requirements
-- **Current**: Abilities activate with 1+ parts
-- **Needed**: 2+ parts required for activation
-- **Impact**: Core strategic mechanic, highest priority
+### Priority 1: UI Polish & Integration
+- **Current**: Parts show basic stats in old format
+- **Needed**: Update all UI to display new dynamic stats (8 stat types)
+- **Impact**: Players need to see all the new stats we've implemented
 
-### Priority 2: Thematic Organization
-- **Current**: Parts organized by rarity
-- **Needed**: Theme-first organization (Skeleton/Zombie/Metal folders)
-- **Impact**: Content scalability and logical restrictions
+### Priority 2: Content Generation & Testing
+- **Current**: Existing parts still use old static stat system
+- **Needed**: Generate diverse dynamic parts for testing and balancing
+- **Impact**: Need variety to test the strategic depth of new system
 
-### Priority 3: Advanced UI
+### Priority 3: Advanced UI Features
 - **Current**: Unity's default UI components
 - **Needed**: Custom pixel art UI matching style guide
 - **Impact**: Visual polish and professional appearance
 
-### Priority 4: Expanded Content
-- **Current**: ~8 parts, basic variety
-- **Needed**: 20+ parts across multiple themes
-- **Impact**: Strategic depth and replayability
+### Priority 4: Scene Flow Improvements
+- **Current**: Separate card selection scene with confusing navigation
+- **Needed**: Card selection overlay system integrated with minion assembly
+- **Impact**: Smoother gameplay flow and better strategic planning
 
 ## 🎯 Next Development Priorities
 
 ### Immediate (Next Session)
-1. **Fix Set Bonus System**: Require 2+ parts for ability activation
-2. **Update Part Assets**: Reorganize by theme instead of rarity
-3. **Create New Parts**: Add more variety within each theme
-4. **Balance Tuning**: Adjust stats and ability values
+1. **Update UI Systems**: Display all 8 dynamic stats in inventory and minion panels
+2. **Generate Test Parts**: Create variety of parts with new system for testing
+3. **Verify Set Bonuses**: Ensure 2+ part requirement works correctly in gameplay
+4. **Balance Testing**: Adjust stat ranges and theme affinities based on gameplay
 
-### Short Term (1-2 Weeks)
-1. **Custom UI Creation**: Follow style guide to create pixel art panels
-2. **Thematic Restrictions**: Implement lore-based part limitations
-3. **Visual Part System**: Show equipped parts on minion sprites
-4. **Audio Integration**: Add sound effects for actions and abilities
+### Short Term (1-2 Weeks)  
+1. **Card Selection Overlay**: Convert card selection to prefab overlay system
+2. **Progressive Minion Unlocking**: Start with 1 minion, unlock more with waves
+3. **Settings Integration**: Add settings access to all scenes
+4. **Visual Polish**: Update part display to show theme colors and enhanced tooltips
 
 ### Medium Term (1-2 Months)
-1. **Procedural Generation**: Dynamic part creation system
-2. **Advanced Abilities**: More complex set bonus combinations
-3. **Campaign Structure**: Multiple difficulty waves
-4. **Performance Optimization**: Handle larger battles smoothly
+1. **Advanced Generation**: Fine-tune stat generation algorithms
+2. **Combat Integration**: Ensure all new stats work properly in combat
+3. **Performance Optimization**: Handle larger stat calculations smoothly
+4. **Content Expansion**: Create more set bonus types and part varieties
 
 ## 🐛 Known Issues
 
 ### Gameplay Issues
-- **Set Bonuses Too Easy**: Single parts activate abilities (design issue)
-- **Limited Strategy**: Not enough part variety for diverse builds
-- **Balance Problems**: Some abilities overpowered, others underused
+- **UI Display**: Inventory and assembly screens don't show new dynamic stats yet
+- **Content Mismatch**: Existing ScriptableObject parts still use old system
+- **Balance Unknown**: New stat ranges and affinities need gameplay testing
 
 ### Technical Issues
-- **UI Readability**: Default Unity UI not optimal for pixel art style
-- **Asset Organization**: Current structure doesn't support thematic approach
-- **Code Coupling**: Some UI managers have tight dependencies
+- **UI Integration**: Need to update all part display systems for 8 stat types
+- **Backwards Compatibility**: Some old systems may expect only HP/ATK stats
+- **Performance**: More complex stat calculations may impact performance
 
 ### Polish Issues
-- **Visual Consistency**: Mix of placeholder and themed elements
+- **Visual Consistency**: Part tooltips need to show theme colors and full stats
 - **Audio Missing**: No sound design implemented yet
 - **Animation Lacking**: Static UI, minimal visual feedback
 

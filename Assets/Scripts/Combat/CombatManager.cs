@@ -248,10 +248,10 @@ public class CombatManager : MonoBehaviour
         
         // For prototype: repeat wave 1 indefinitely for testing
         // In full game, you'd increment currentWaveIndex here
-        Debug.Log("[CombatManager] Proceeding to card selection for next wave");
+        Debug.Log("[CombatManager] Proceeding to minion assembly for next wave");
         
-        // Always go to card selection after completing a wave
-        SceneManager.LoadScene("CardSelection");
+        // Return to minion assembly where the card selection overlay is available
+        SceneManager.LoadScene("MinionAssembly");
     }
 
     void HandleGameOver()
