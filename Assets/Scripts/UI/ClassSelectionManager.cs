@@ -1,33 +1,63 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class ClassSelectionManager : MonoBehaviour
 {
-    [Header("UI References")]
-    public Button[] classButtons = new Button[3];
-    public TMPro.TextMeshProUGUI[] classButtonTexts = new TMPro.TextMeshProUGUI[3];
-    public TMPro.TextMeshProUGUI titleText;
-    public TMPro.TextMeshProUGUI classNameText;
-    public TMPro.TextMeshProUGUI classDescriptionText;
-    public TMPro.TextMeshProUGUI classBonusText;
+    [Header("Scene Elements")]
+    public TextMeshProUGUI sceneTitle;
+    
+    [Header("Class Cards")]
+    public Button[] classCards = new Button[3];
+    public Sprite cardBackgroundSprite; // Card background sprite for all cards
+    public Image[] classPortraits = new Image[3];
+    public TextMeshProUGUI[] classNameTexts = new TextMeshProUGUI[3];
+    public TextMeshProUGUI[] classSubtitleTexts = new TextMeshProUGUI[3];
+    public TextMeshProUGUI[] classDescriptionTexts = new TextMeshProUGUI[3];
+    public TextMeshProUGUI[] classBonusTexts = new TextMeshProUGUI[3];
+    public TextMeshProUGUI[] classPlaystyleTexts = new TextMeshProUGUI[3];
+    
+    [Header("Navigation")]
     public Button backButton;
     public Button selectButton;
     
     [Header("Necromancer Classes")]
     public NecromancerClass[] availableClasses = new NecromancerClass[3];
     
+    [Header("Class Theming")]
+    public Color[] classAccentColors = new Color[3] 
+    {
+        new Color(0.97f, 0.98f, 0.99f, 1f), // Bone Weaver - Bone white
+        new Color(0.18f, 0.52f, 0.35f, 1f), // Flesh Sculptor - Dark green  
+        new Color(0.33f, 0.24f, 0.60f, 1f)  // Soul Binder - Deep purple
+    };
+    
+    public Color[] classHighlightColors = new Color[3]
+    {
+        new Color(0.98f, 0.83f, 0.55f, 1f), // Bone Weaver - Aged bone yellow
+        new Color(0.41f, 0.83f, 0.57f, 1f), // Flesh Sculptor - Sickly green
+        new Color(0.62f, 0.48f, 0.92f, 1f)  // Soul Binder - Mystical purple
+    };
+    
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip cardHoverSound;
+    public AudioClip cardSelectSound;
+    
     [Header("Debug")]
     public bool enableDebugLogging = true;
     
     // Private fields
     private int selectedClassIndex = -1;
+    private int hoveredClassIndex = -1;
     private NecromancerClass selectedClass;
     
     void Start()
     {
         InitializeUI();
         SetupButtonListeners();
+        SetupAudio();
         
         if (enableDebugLogging)
             Debug.Log("[ClassSelectionManager] Class selection scene initialized");
@@ -35,47 +65,156 @@ public class ClassSelectionManager : MonoBehaviour
     
     void InitializeUI()
     {
-        // Set title
-        if (titleText != null)
-            titleText.text = "Choose Your Necromancer Class";
+        // Set scene title
+        if (sceneTitle != null)
+            sceneTitle.text = "SELECT YOUR NECROMANCER CLASS";
         
-        // Hide select button initially
+        // Show select button but make it non-interactable initially (greyed out)
         if (selectButton != null)
-            selectButton.gameObject.SetActive(false);
-        
-        // Set up class buttons
-        for (int i = 0; i < classButtons.Length && i < availableClasses.Length; i++)
         {
-            if (availableClasses[i] != null && classButtonTexts[i] != null)
-            {
-                classButtonTexts[i].text = availableClasses[i].className;
-            }
+            selectButton.gameObject.SetActive(true);
+            selectButton.interactable = false;
         }
         
-        // Clear description panel
-        if (classNameText != null) classNameText.text = "";
-        if (classDescriptionText != null) classDescriptionText.text = "Select a class to see details";
-        if (classBonusText != null) classBonusText.text = "";
+        // Set up class cards
+        for (int i = 0; i < classCards.Length && i < availableClasses.Length; i++)
+        {
+            if (availableClasses[i] != null)
+            {
+                SetupClassCard(i);
+            }
+        }
+    }
+    
+    void SetupClassCard(int index)
+    {
+        var necroClass = availableClasses[index];
+        
+        // Ensure card has background sprite
+        if (classCards[index] != null && classCards[index].image != null && cardBackgroundSprite != null)
+        {
+            classCards[index].image.sprite = cardBackgroundSprite;
+        }
+        
+        // Set class name
+        if (classNameTexts[index] != null)
+            classNameTexts[index].text = necroClass.className;
+        
+        // Set subtitle
+        if (classSubtitleTexts[index] != null)
+            classSubtitleTexts[index].text = GetClassSubtitle(necroClass.className);
+        
+        // Set portrait
+        if (classPortraits[index] != null && necroClass.classIcon != null)
+            classPortraits[index].sprite = necroClass.classIcon;
+        
+        // Set description
+        if (classDescriptionTexts[index] != null)
+            classDescriptionTexts[index].text = necroClass.classDescription;
+        
+        // Set bonus details
+        if (classBonusTexts[index] != null)
+        {
+            string bonusText = $"<b>Specialty:</b> {necroClass.specialtyDescription}\n\n";
+            bonusText += $"<b>Starting Bonuses:</b>\n";
+            bonusText += $"• HP Multiplier: {necroClass.hpBonusMultiplier}x\n";
+            bonusText += $"• Attack Multiplier: {necroClass.attackBonusMultiplier}x\n";
+            bonusText += $"• Bonus Card Picks: +{necroClass.bonusCardPicks}";
+            classBonusTexts[index].text = bonusText;
+        }
+        
+        // Set playstyle
+        if (classPlaystyleTexts[index] != null)
+        {
+            string playstyleText = $"<b>Playstyle:</b>\n{GetClassPlaystyle(necroClass.className)}";
+            classPlaystyleTexts[index].text = playstyleText;
+        }
+        
+        // Apply class theming
+        ApplyClassTheme(index, false);
+    }
+    
+    string GetClassSubtitle(string className)
+    {
+        switch (className)
+        {
+            case "Bone Weaver": return "Master of Bones";
+            case "Flesh Sculptor": return "Lord of Decay";
+            case "Soul Binder": return "Spirit Guide";
+            default: return "Necromancer";
+        }
+    }
+    
+    string GetClassPlaystyle(string className)
+    {
+        switch (className)
+        {
+            case "Bone Weaver": return "Glass Cannon - High Risk/Reward\nExcel at critical strikes and swift movement";
+            case "Flesh Sculptor": return "Tank & Sustain - Outlast Enemies\nSpecialize in vampiric healing and heavy armor";
+            case "Soul Binder": return "Flexible & Safe - Adaptable Builds\nBalanced approach, perfect for beginners";
+            default: return "Balanced Playstyle";
+        }
+    }
+    
+    void SetupAudio()
+    {
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
     
     void SetupButtonListeners()
     {
-        // Set up class selection buttons
-        for (int i = 0; i < classButtons.Length; i++)
+        // Set up class card buttons
+        for (int i = 0; i < classCards.Length; i++)
         {
             int classIndex = i; // Capture for closure
-            if (classButtons[i] != null)
+            if (classCards[i] != null)
             {
-                classButtons[i].onClick.AddListener(() => SelectClass(classIndex));
+                // Click listener
+                classCards[i].onClick.AddListener(() => SelectClass(classIndex));
+                
+                // Hover listeners using EventTrigger component
+                var eventTrigger = classCards[i].GetComponent<UnityEngine.EventSystems.EventTrigger>();
+                if (eventTrigger == null)
+                    eventTrigger = classCards[i].gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+                
+                // Hover enter
+                var hoverEntry = new UnityEngine.EventSystems.EventTrigger.Entry();
+                hoverEntry.eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter;
+                hoverEntry.callback.AddListener((data) => { HoverClass(classIndex); });
+                eventTrigger.triggers.Add(hoverEntry);
+                
+                // Hover exit
+                var hoverExit = new UnityEngine.EventSystems.EventTrigger.Entry();
+                hoverExit.eventID = UnityEngine.EventSystems.EventTriggerType.PointerExit;
+                hoverExit.callback.AddListener((data) => { ExitHover(); });
+                eventTrigger.triggers.Add(hoverExit);
             }
         }
         
-        // Set up navigation buttons
+        // Navigation buttons
         if (backButton != null)
             backButton.onClick.AddListener(BackToMainMenu);
         
         if (selectButton != null)
             selectButton.onClick.AddListener(ConfirmClassSelection);
+    }
+    
+    void HoverClass(int classIndex)
+    {
+        if (classIndex == hoveredClassIndex) return;
+        
+        hoveredClassIndex = classIndex;
+        PlaySound(cardHoverSound);
+        
+        // Update visual feedback
+        UpdateClassCardVisuals();
+    }
+    
+    void ExitHover()
+    {
+        hoveredClassIndex = -1;
+        UpdateClassCardVisuals();
     }
     
     void SelectClass(int classIndex)
@@ -86,71 +225,80 @@ public class ClassSelectionManager : MonoBehaviour
         selectedClassIndex = classIndex;
         selectedClass = availableClasses[classIndex];
         
+        PlaySound(cardSelectSound);
+        
         // Update visual feedback
-        UpdateClassSelectionVisuals();
+        UpdateClassCardVisuals();
         
-        // Update description panel
-        UpdateClassDescription();
-        
-        // Show select button
+        // Enable select button (make it interactable)
         if (selectButton != null)
-            selectButton.gameObject.SetActive(true);
+            selectButton.interactable = true;
         
         if (enableDebugLogging)
             Debug.Log($"[ClassSelectionManager] Selected class: {selectedClass.className}");
     }
     
-    void UpdateClassSelectionVisuals()
+    void UpdateClassCardVisuals()
     {
-        for (int i = 0; i < classButtons.Length; i++)
+        for (int i = 0; i < classCards.Length; i++)
         {
-            if (classButtons[i] != null)
+            if (classCards[i] != null)
             {
-                ColorBlock colors = classButtons[i].colors;
-
-                if (i == selectedClassIndex)
-                {
-                    // Highlight selected class
-                    colors.normalColor = Color.green;
-                    colors.highlightedColor = new Color(0.8f, 1f, 0.8f);
-                    colors.pressedColor = new Color(0.7f, 0.9f, 0.7f);
-                    colors.selectedColor = Color.green;
-                }
-                else
-                {
-                    colors.normalColor = Color.white;
-                    colors.highlightedColor = new Color(0.96f, 0.96f, 0.96f);
-                    colors.pressedColor = new Color(0.78f, 0.78f, 0.78f);
-                    colors.selectedColor = Color.white;
-                }
-
-                classButtons[i].colors = colors;
+                bool isSelected = (i == selectedClassIndex);
+                bool isHovered = (i == hoveredClassIndex);
                 
-                classButtons[i].OnDeselect(null);
-                classButtons[i].OnSelect(null);
+                ApplyClassTheme(i, isSelected || isHovered);
             }
         }
     }
     
-    void UpdateClassDescription()
+    void ApplyClassTheme(int index, bool highlighted)
     {
-        if (selectedClass == null) return;
+        if (index >= classAccentColors.Length) return;
         
-        if (classNameText != null)
-            classNameText.text = selectedClass.className;
-        
-        if (classDescriptionText != null)
-            classDescriptionText.text = selectedClass.classDescription;
-        
-        if (classBonusText != null)
+        // Apply background color with different alpha values per class
+        if (classCards[index].image != null)
         {
-            string bonusText = $"<b>Specialty:</b> {selectedClass.specialtyDescription}\n\n";
-            bonusText += $"<b>Bonuses:</b>\n";
-            bonusText += $"• HP Multiplier: {selectedClass.hpBonusMultiplier}x\n";
-            bonusText += $"• Attack Multiplier: {selectedClass.attackBonusMultiplier}x\n";
-            bonusText += $"• Bonus Card Picks: +{selectedClass.bonusCardPicks}";
+            Color targetColor = highlighted ? classHighlightColors[index] : classAccentColors[index];
             
-            classBonusText.text = bonusText;
+            // Adjust alpha based on class - darker colors need higher alpha to be visible
+            float normalAlpha, highlightedAlpha;
+            switch (index)
+            {
+                case 0: // Bone Weaver - light colors, lower alpha
+                    normalAlpha = 0.4f;
+                    highlightedAlpha = 0.6f;
+                    break;
+                case 1: // Flesh Sculptor - medium colors, medium alpha  
+                    normalAlpha = 0.4f;
+                    highlightedAlpha = 0.6f;
+                    break;
+                case 2: // Soul Binder - dark colors, higher alpha
+                    normalAlpha = 0.4f;
+                    highlightedAlpha = 0.6f;
+                    break;
+                default:
+                    normalAlpha = 0.4f;
+                    highlightedAlpha = 0.6f;
+                    break;
+            }
+            
+            targetColor.a = highlighted ? highlightedAlpha : normalAlpha;
+            classCards[index].image.color = targetColor;
+        }
+        
+        // Apply text color to class name
+        if (classNameTexts[index] != null)
+        {
+            classNameTexts[index].color = highlighted ? classHighlightColors[index] : Color.white;
+        }
+    }
+    
+    void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
         }
     }
     

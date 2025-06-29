@@ -84,7 +84,7 @@ public class SettingsManager : MonoBehaviour
         // Try to get button click sound from MainMenuManager if not assigned
         if (buttonClickSound == null)
         {
-            MainMenuManager mainMenu = FindObjectOfType<MainMenuManager>();
+            MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
             if (mainMenu != null && mainMenu.buttonClickSound != null)
             {
                 buttonClickSound = mainMenu.buttonClickSound;

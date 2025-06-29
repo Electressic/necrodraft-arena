@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: Flesh Sculptor
   m_EditorClassIdentifier: 
   className: Flesh Sculptor
-  classIcon: {fileID: 0}
-  classDescription: Masters of decay and regeneration. Flesh parts provide enhanced
-    durability and self-healing capabilities.
+  classIcon: {fileID: -3474463418261343658, guid: 5c193ce5635b0e048a856fa9bc3b881d, type: 3}
+  classDescription: 'Masters of decay and regeneration. '
   specialtyKeyword: Flesh
   specialtyDescription: Flesh parts gain +50% HP and slow regeneration
   startingMinionType: {fileID: 0}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BoneWeaver
   m_EditorClassIdentifier: 
   className: Bone Weaver
-  classIcon: {fileID: 0}
+  classIcon: {fileID: -2071131800922814628, guid: 7ff7218db92553e41a84df64bc9c32ec, type: 3}
   classDescription: Masters of skeletal minions and bone-based parts.
   specialtyKeyword: Bone
   specialtyDescription: Bone parts are 50% more effective
