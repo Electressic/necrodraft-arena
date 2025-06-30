@@ -78,8 +78,12 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     
     public void OnEndDrag(PointerEventData eventData)
     {
-        canvasGroup.alpha = 1f;
-        canvasGroup.blocksRaycasts = true;
+        // Safely restore original object state
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+        }
         
         GameObject dropTarget = eventData.pointerEnter;
         bool droppedSuccessfully = false;
@@ -93,6 +97,7 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             }
         }
         
+        // Clean up drag ghost immediately to prevent reference errors
         DestroyDragGhost();
         
         if (assemblyManager != null && assemblyManager.enableDebugLogging)
@@ -227,10 +232,22 @@ public class DraggablePartItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         if (dragGhost != null)
         {
+            // Remove from parent to prevent reference issues
+            try
+            {
+                if (dragGhost.transform.parent != null)
+                    dragGhost.transform.SetParent(null);
+            }
+            catch (System.Exception) 
+            {
+                // Object may already be destroyed, continue cleanup
+            }
+            
             Destroy(dragGhost);
             dragGhost = null;
-            ghostRectTransform = null;
         }
+        
+        ghostRectTransform = null;
     }
     
     void OnDestroy()

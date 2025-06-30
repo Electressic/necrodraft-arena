@@ -39,46 +39,78 @@ Parts belong to one of **3 undead themes**, each with distinct stat affinities:
 - **Low Affinity**: None (balanced theme)
 - **Playstyle**: Versatile builds, magical damage focus, hybrid strategies
 
-### **Rarity Tiers**
+### **Rarity Tiers & Stat Budget System**
 
-#### **Common (White)**
+#### **Common (White) - 12 Stat Budget**
 - **Stats Generated**: 1-2 stats per part
-- **Value Ranges**: Low (HP: 3-8, ATK: 2-5, percentages: 5-15%)
-- **Frequency**: ~60% of drops
-- **Purpose**: Reliable power progression, building blocks
+- **Stat Distribution**: 90% primary pool, 10% secondary pool
+- **Frequency**: High early game, 0% late game
+- **Purpose**: Foundation pieces, learning basic synergies
 
-#### **Rare (Blue)**
-- **Stats Generated**: 2-3 stats per part  
-- **Value Ranges**: Medium (HP: 6-12, ATK: 4-8, percentages: 10-25%)
-- **Frequency**: ~30% of drops
-- **Purpose**: Meaningful upgrades, synergy pieces
+#### **Uncommon (Green) - 20 Stat Budget**
+- **Stats Generated**: 2 stats per part (always full budget)
+- **Stat Distribution**: 75% primary pool, 25% secondary pool
+- **Frequency**: Consistent mid-game backbone
+- **Purpose**: Reliable upgrades, early set bonus enablers
 
-#### **Epic (Purple)**
-- **Stats Generated**: 3-4 stats per part
-- **Value Ranges**: High (HP: 10-18, ATK: 7-12, percentages: 20-40%)
-- **Frequency**: ~10% of drops
-- **Purpose**: Build-defining pieces, high-risk choices
+#### **Rare (Blue) - 32 Stat Budget**
+- **Stats Generated**: 2-3 stats per part (always full budget)
+- **Stat Distribution**: 60% primary pool, 40% secondary pool
+- **Frequency**: Mid to late game focus
+- **Purpose**: Build-defining pieces, strong synergies
+
+#### **Epic (Purple) - 50 Stat Budget**
+- **Stats Generated**: 3-4 stats per part (always full budget)
+- **Stat Distribution**: 50% primary pool, 50% secondary pool
+- **Frequency**: Late game specialization
+- **Purpose**: Endgame optimization, complex builds
+
+#### **Generic Parts - +25% Stat Budget**
+- **Compensation**: Higher stat budgets to offset lack of set bonuses
+- **Budget Examples**: Common = 15, Uncommon = 25, Rare = 40, Epic = 62.5
+- **Purpose**: Alternative builds, stat-focused strategies
 
 ## 📊 Dynamic Stat System
 
-### **Core Stats** (Flat Bonuses)
+### **Stat Budget Allocation**
+The new system uses **stat budgets** instead of fixed ranges, ensuring consistent power scaling:
+
 ```
-Health: Flat HP increase (3-18 based on rarity)
-Attack: Flat damage increase (2-12 based on rarity)  
-Defense: Flat damage reduction (1-6 based on rarity)
+Common (12 points):   Focused builds, 1-2 stats
+Uncommon (20 points): Balanced builds, 2 stats  
+Rare (32 points):     Strong builds, 2-3 stats
+Epic (50 points):     Complex builds, 3-4 stats
 ```
 
-### **Combat Stats** (Percentage Bonuses)
+### **Primary vs Secondary Stat Pools**
+
+#### **Primary Stat Pools** (by part slot)
 ```
-Attack Speed: Multiplier to attack rate (5-40% based on rarity)
-Crit Chance: Chance for critical hits (5-40% based on rarity)
-Crit Damage: Multiplier for critical damage (10-50% based on rarity)
+Head Parts:   Crit Chance, Crit Damage, Range
+Torso Parts:  Health, Defense, Dodge Chance
+Arms Parts:   Attack, Attack Speed, Crit Chance  
+Legs Parts:   Move Speed, Attack Speed, Dodge Chance
 ```
 
-### **Movement Stats** (Percentage Bonuses)
+#### **Secondary Stat Pools** (by part slot)
 ```
-Move Speed: Multiplier to movement rate (5-50% based on rarity)
-Range: Multiplier to attack range (5-40% based on rarity)
+Head Parts:   Attack Speed, Move Speed, Health
+Torso Parts:  Attack, Move Speed, Attack Speed
+Arms Parts:   Health, Defense, Range, Move Speed
+Legs Parts:   Health, Defense, Range, Crit Chance
+```
+
+### **Stat Point Values**
+```
+Health: 1 point per +1 HP
+Attack: 1 point per +1 Attack
+Defense: 2 points per +1 Defense (powerful)
+Attack Speed: 50 points per +100% (percentage stats more expensive)
+Crit Chance: 100 points per +100% 
+Crit Damage: 50 points per +100%
+Move Speed: 50 points per +100%
+Range: 75 points per +100%
+Dodge Chance: 100 points per +100% (rare stat)
 ```
 
 ## ⚔️ Set Bonus System
@@ -144,49 +176,77 @@ Set bonuses require **2 or more parts** with the same special ability:
 
 ## 🎲 Procedural Generation
 
-### **Generation Algorithm**
+### **Budget-Based Generation Algorithm**
 ```
-1. Select Theme → Determines stat affinity chances
-2. Select Rarity → Determines value ranges and stat count
-3. Roll Each Stat → Based on theme chances and rarity ranges
-4. Ensure Minimums → Guarantee minimum stats for rarity tier
+1. Select Theme → Determines primary/secondary pool preferences
+2. Select Rarity → Sets total stat budget (12/20/32/50 points)
+3. Select Part Type → Defines primary and secondary stat pools
+4. Allocate Budget → Distribute points between primary (preferred) and secondary pools
 5. Assign Set Bonus → Independent of generated stats
+6. Generate Names → Based on theme, rarity, and abilities
 ```
 
-### **Theme-Based Generation Examples**
+### **Budget Allocation Examples**
 
-#### **Skeleton Epic Head**
+#### **Skeleton Epic Head (50 budget)**
 ```
-Generated Stats (high chance):
-- +15 Attack (good attack affinity)
-- +25% Crit Chance (very high crit affinity) 
-- +30% Move Speed (very high speed affinity)
-- +20% Range (high range affinity)
+Primary Pool (25 points): Crit Chance, Crit Damage, Range
+Secondary Pool (25 points): Attack Speed, Move Speed, Health
 
-Set Bonus: Critical Strike
-Result: Perfect glass cannon piece
-```
+Generated Stats:
+- +25% Crit Chance (25 points from primary)
+- +20% Attack Speed (10 points from secondary)
+- +15 Health (15 points from secondary)
 
-#### **Zombie Epic Torso**
-```
-Generated Stats (high chance):
-- +16 Health (very high health affinity)
-- +5 Defense (high defense affinity)
-- +8 Attack (medium attack affinity)
-
-Set Bonus: Armored  
-Result: Perfect tank piece
+Set Bonus: Rattling Presence
+Result: 50/50 budget split, precision focus
 ```
 
-#### **Ghost Rare Arms**
+#### **Zombie Uncommon Torso (20 budget)**
 ```
-Generated Stats (balanced):
-- +6 Attack (medium affinity)
-- +15% Attack Speed (good affinity)
-- +20% Crit Damage (high affinity)
+Primary Pool (15 points): Health, Defense, Dodge Chance  
+Secondary Pool (5 points): Attack, Move Speed, Attack Speed
 
-Set Bonus: Vampiric
-Result: Versatile sustain piece
+Generated Stats:
+- +12 Health (12 points from primary)
+- +1 Defense (2 points from primary - defense costs 2x)
+- +3 Attack (3 points from secondary - rounds to use full budget)
+
+Set Bonus: Undying Hunger
+Result: Tank-focused with minor offense
+```
+
+#### **Ghost Rare Arms (32 budget)**
+```
+Primary Pool (19 points): Attack, Attack Speed, Crit Chance
+Secondary Pool (13 points): Health, Defense, Range, Move Speed
+
+Generated Stats:
+- +12 Attack (12 points from primary)
+- +14% Attack Speed (7 points from primary)
+- +8 Health (8 points from secondary)
+- +6% Move Speed (3 points from secondary)
+- +3% Range (2 points from secondary)
+
+Set Bonus: Ethereal Touch
+Result: Balanced offensive piece with utility
+```
+
+### **Generic Part Examples**
+
+#### **Grafted Bone Epic Arms (62.5 budget = 63 rounded)**
+```
+No primary/secondary restrictions - optimized stat distribution
+
+Generated Stats:
+- +25 Attack (25 points)
+- +30% Attack Speed (15 points)
+- +15% Crit Chance (15 points) 
+- +5 Health (5 points)
+- +1 Defense (2 points)
+
+Set Bonus: None
+Result: Higher total stats but no set synergy
 ```
 
 ## 🎮 Strategic Implications

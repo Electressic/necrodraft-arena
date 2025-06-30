@@ -52,8 +52,52 @@ public class MinionAssemblyManager : MonoBehaviour
         // Initialize card selection button state based on wave progression
         UpdateCardSelectionButtonState();
         
+        // Subscribe to minion progression events
+        MinionManager.OnMinionUnlocked += OnMinionUnlocked;
+        MinionManager.OnMinionLeveledUp += OnMinionLeveledUp;
+        MinionManager.OnRosterChanged += UpdateMinionDisplay;
+        
         if (enableDebugLogging)
             Debug.Log("[MinionAssemblyManager] Assembly scene initialized");
+    }
+    
+    void OnDestroy()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        MinionManager.OnMinionUnlocked -= OnMinionUnlocked;
+        MinionManager.OnMinionLeveledUp -= OnMinionLeveledUp;
+        MinionManager.OnRosterChanged -= UpdateMinionDisplay;
+    }
+    
+    // Called when a new minion slot is unlocked
+    void OnMinionUnlocked(int newMaxMinions)
+    {
+        if (enableDebugLogging)
+            Debug.Log($"[MinionAssemblyManager] New minion slot unlocked! Now have {newMaxMinions} max minions for wave {GameData.GetCurrentWave()}");
+        
+        // Show notification to player (for now just debug, but this could trigger a popup)
+        string notificationMessage = $"MINION UNLOCKED! You can now field {newMaxMinions} minions.";
+        Debug.Log($"[MinionAssemblyManager] NOTIFICATION: {notificationMessage}");
+        
+        // Refresh UI to show the new minion creation button state
+        RefreshMinionSelector();
+        RefreshInventoryDisplay();
+        UpdateMinionDisplay();
+    }
+    
+    // Called when a minion levels up
+    void OnMinionLeveledUp(Minion minion, int newLevel)
+    {
+        if (enableDebugLogging)
+            Debug.Log($"[MinionAssemblyManager] 🎉 {minion.minionName} reached level {newLevel}!");
+        
+        // Show level-up notification (for now just enhanced debug)
+        string notificationMessage = $"🎉 {minion.minionName} LEVEL UP! Now level {newLevel}";
+        Debug.Log($"[MinionAssemblyManager] LEVEL UP: {notificationMessage}");
+        
+        // Refresh UI to show updated level and stats
+        RefreshMinionListDisplay();
+        RefreshInventoryDisplay();
     }
     
     void InitializeFromMinionManager()

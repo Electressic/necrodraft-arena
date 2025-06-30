@@ -89,13 +89,24 @@ public class MinionController : Unit
         
         int modifiedDamage = damage;
         
-        // Armored ability
-        if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Armored))
+        // Apply level-enhanced defense first
+        if (minionData != null && minionData.totalDefense > 0)
         {
-            modifiedDamage = Mathf.Max(1, damage - 1);
+            modifiedDamage = Mathf.Max(1, damage - minionData.totalDefense);
             if (modifiedDamage != damage)
             {
-                Debug.Log($"[{gameObject.name}] Armor reduced damage from {damage} to {modifiedDamage}!");
+                Debug.Log($"[{gameObject.name}] Defense ({minionData.totalDefense}) reduced damage from {damage} to {modifiedDamage}!");
+            }
+        }
+        
+        // Armored set bonus (additional defense)
+        if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.Armored))
+        {
+            int armoredDamage = Mathf.Max(1, modifiedDamage - 1);
+            if (armoredDamage != modifiedDamage)
+            {
+                Debug.Log($"[{gameObject.name}] Armored set bonus reduced damage from {modifiedDamage} to {armoredDamage}!");
+                modifiedDamage = armoredDamage;
             }
         }
         
@@ -129,13 +140,25 @@ public class MinionController : Unit
             
             int finalDamage = attackPower;
             
-            // Critical Strike ability
-            if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.CriticalStrike))
+            // Critical Hit calculation using level-enhanced stats
+            if (minionData != null && minionData.totalCritChance > 0)
             {
-                if (Random.Range(0f, 1f) <= 0.25f) // 25% chance
+                float critRoll = Random.Range(0f, 100f);
+                if (critRoll <= minionData.totalCritChance)
+                {
+                    finalDamage = Mathf.RoundToInt(finalDamage * (minionData.totalCritDamage / 100f));
+                    Debug.Log($"[{gameObject.name}] CRITICAL HIT! ({minionData.totalCritChance:F1}% chance) for {finalDamage} damage! (x{minionData.totalCritDamage:F0}%)");
+                    CreateCriticalHitEffect();
+                }
+            }
+            
+            // Additional Critical Strike set bonus (stacks with level-enhanced crit)
+            else if (minionData != null && minionData.HasSetBonus(PartData.SpecialAbility.CriticalStrike))
+            {
+                if (Random.Range(0f, 1f) <= 0.25f) // 25% chance from set bonus
                 {
                     finalDamage *= 2;
-                    Debug.Log($"[{gameObject.name}] CRITICAL HIT for {finalDamage} damage!");
+                    Debug.Log($"[{gameObject.name}] CRITICAL STRIKE SET BONUS for {finalDamage} damage!");
                     CreateCriticalHitEffect();
                 }
             }
@@ -219,11 +242,16 @@ public class MinionController : Unit
     {
         minionData = minion;
         
-        // Apply move speed from special abilities
-        float finalMoveSpeed = moveSpeed * minion.totalMoveSpeedMultiplier;
+        // Use minion's level-enhanced calculated stats
+        Initialize(minion.totalHP, minion.totalAttack, minion.totalMoveSpeed);
         
-        // Use minion's calculated stats
-        Initialize(minion.totalHP, minion.totalAttack, finalMoveSpeed);
+        // Apply additional level-enhanced stats not covered by base Initialize
+        attackSpeed = minion.totalAttackSpeed;
+        attackRange = minion.totalRange;
+        
+        // Store enhanced stats for combat calculations
+        originalMoveSpeed = minion.totalMoveSpeed;
+        originalAttackSpeed = minion.totalAttackSpeed;
         
         // Update visual appearance using the new modular system
         if (minionVisual != null)
@@ -238,7 +266,7 @@ public class MinionController : Unit
         
         gameObject.name = minion.minionName;
         
-        Debug.Log($"[MinionController] Initialized {minion.minionName} with {minion.totalHP} HP, {minion.totalAttack} ATK, and abilities: {minion.GetAbilitiesSummary()}");
+        Debug.Log($"[MinionController] Initialized {minion.minionName} with level {minion.level} stats: {minion.totalHP} HP, {minion.totalAttack} ATK, {minion.totalAttackSpeed:F1} AS, {minion.totalMoveSpeed:F1} MS, {minion.totalRange:F1} Range. Abilities: {minion.GetAbilitiesSummary()}");
     }
     
     void FindNearestEnemy()

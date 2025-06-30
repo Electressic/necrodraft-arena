@@ -39,7 +39,13 @@ public class CombatManager : MonoBehaviour
         if (gameplayUIManager == null)
             gameplayUIManager = FindFirstObjectByType<GameManager>();
         
-        // Start the first wave after a delay
+        // Sync with GameData's current wave progress
+        int gameDataWave = GameData.GetCurrentWave();
+        currentWaveIndex = gameDataWave - 1; // Convert to 0-based index
+        
+        Debug.Log($"[CombatManager] Starting combat for Wave {gameDataWave} (index {currentWaveIndex})");
+        
+        // Start the current wave after a delay
         Invoke(nameof(StartNextWave), combatStartDelay);
 
         // Add test button listener
@@ -49,25 +55,39 @@ public class CombatManager : MonoBehaviour
 
     public void StartNextWave()
     {
-        if (currentWaveIndex >= waveConfigs.Count)
+        // Get the wave data - use the first config as a template if we don't have enough
+        WaveData currentWaveData;
+        
+        if (currentWaveIndex < waveConfigs.Count)
         {
-            Debug.Log("[CombatManager] All waves completed! Victory!");
+            currentWaveData = waveConfigs[currentWaveIndex];
+        }
+        else if (waveConfigs.Count > 0)
+        {
+            // Use the last wave config as a template and scale it up
+            currentWaveData = waveConfigs[waveConfigs.Count - 1];
+            Debug.Log($"[CombatManager] Using wave template {waveConfigs.Count} for wave {currentWaveIndex + 1}");
+        }
+        else
+        {
+            Debug.LogError("[CombatManager] No wave configurations available!");
             HandleGameVictory();
             return;
         }
-
-        WaveData currentWaveData = waveConfigs[currentWaveIndex];
         
-        // Update UI
+        // Update UI with current wave from GameData
         if (gameplayUIManager != null)
         {
-            gameplayUIManager.currentWave = currentWaveIndex + 1;
-            // Call UpdateUI method if it exists
-            var updateMethod = gameplayUIManager.GetType().GetMethod("UpdateUI");
-            updateMethod?.Invoke(gameplayUIManager, null);
+            gameplayUIManager.RefreshWaveDisplay();
         }
         
-        Debug.Log($"[CombatManager] Starting {currentWaveData.waveName}");
+        string waveName = currentWaveData.waveName;
+        if (currentWaveIndex >= waveConfigs.Count)
+        {
+            waveName = $"Wave {GameData.GetCurrentWave()}"; // Generate name for scaled waves
+        }
+        
+        Debug.Log($"[CombatManager] Starting {waveName} (GameData Wave: {GameData.GetCurrentWave()})");
         
         StartCoroutine(SpawnWave(currentWaveData));
     }
@@ -122,17 +142,19 @@ public class CombatManager : MonoBehaviour
 
     IEnumerator SpawnEnemies(WaveData waveData)
     {
+        int currentWave = GameData.GetCurrentWave();
         int spawnPointIndex = 0;
         
-        foreach (EnemySpawnInfo spawnInfo in waveData.enemyGroups)
+        // Use wave-based enemy spawning instead of fixed wave configs
+        var enemyWaveInfo = GetEnemyInfoForWave(currentWave);
+        
+        foreach (var enemyInfo in enemyWaveInfo)
         {
-            if (spawnInfo.enemyType == null) continue;
-            
             // Wait for spawn delay
-            yield return new WaitForSeconds(spawnInfo.spawnDelay);
+            yield return new WaitForSeconds(enemyInfo.spawnDelay);
             
             // Spawn the specified number of this enemy type
-            for (int i = 0; i < spawnInfo.count; i++)
+            for (int i = 0; i < enemyInfo.count; i++)
             {
                 // Check if we have spawn points
                 if (enemySpawnPoints == null || enemySpawnPoints.Length == 0)
@@ -149,11 +171,23 @@ public class CombatManager : MonoBehaviour
                 
                 if (enemyController != null)
                 {
-                    enemyController.Initialize(spawnInfo.enemyType);
+                    // Always use BasicZombie as base, but scale for current wave
+                    EnemyData baseEnemyData = Resources.Load<EnemyData>("BasicZombie");
+                    if (baseEnemyData == null)
+                    {
+                        // Fallback to wave config if BasicZombie not found in Resources
+                        baseEnemyData = waveData.enemyGroups[0].enemyType;
+                    }
+                    
+                    enemyController.Initialize(baseEnemyData);
+                    
+                    // Override the enemy name with our custom wave-based name
+                    enemyController.gameObject.name = $"{enemyInfo.displayName} (W{currentWave})";
+                    
                     enemyController.OnDeath += OnEnemyDeath;
                     activeEnemies.Add(enemyController);
                     
-                    Debug.Log($"[CombatManager] Spawned enemy: {spawnInfo.enemyType.enemyName}");
+                    Debug.Log($"[CombatManager] Spawned {enemyInfo.displayName} (W{currentWave}) - HP: {enemyController.maxHP}, ATK: {enemyController.attackPower}");
                 }
                 else
                 {
@@ -164,10 +198,51 @@ public class CombatManager : MonoBehaviour
                 spawnPointIndex++;
                 
                 // Small delay between individual spawns
-                if (i < spawnInfo.count - 1)
-                    yield return new WaitForSeconds(waveData.timeBetweenSpawns);
+                if (i < enemyInfo.count - 1)
+                    yield return new WaitForSeconds(0.8f);
             }
         }
+    }
+    
+    // Generate wave-appropriate enemy spawn info
+    System.Collections.Generic.List<(string displayName, int count, float spawnDelay)> GetEnemyInfoForWave(int wave)
+    {
+        var enemies = new System.Collections.Generic.List<(string, int, float)>();
+        
+        if (wave <= 3)
+        {
+            // Early waves: 2-3 basic enemies
+            enemies.Add(("Basic Enemy", 2 + (wave - 1), 0f));
+        }
+        else if (wave <= 7)
+        {
+            // Act 1 end: Mixed enemy groups
+            enemies.Add(("Shambling Corpse", 2, 0f));
+            enemies.Add(("Rotting Zombie", 1 + (wave - 4), 1.5f));
+        }
+        else if (wave <= 12)
+        {
+            // Act 2: Stronger enemies in groups
+            enemies.Add(("Undead Soldier", 2, 0f));
+            enemies.Add(("Bone Warrior", 1, 1f));
+            enemies.Add(("Corrupted Guardian", 1, 2f));
+        }
+        else if (wave <= 17)
+        {
+            // Act 2 end: Elite enemies
+            enemies.Add(("Skeletal Champion", 1, 0f));
+            enemies.Add(("Death Knight", 1, 1.5f));
+            enemies.Add(("Undead Brute", 2, 2.5f));
+        }
+        else
+        {
+            // Act 3: Boss-tier enemies
+            enemies.Add(("Bone Colossus", 1, 0f));
+            enemies.Add(("Lich Commander", 1, 2f));
+            enemies.Add(("Undead Horde", wave - 16, 3f));
+        }
+        
+        return enemies;
     }
 
     IEnumerator CheckWaveCompletion()
@@ -229,7 +304,7 @@ public class CombatManager : MonoBehaviour
     {
         Debug.Log($"[CombatManager] Wave {currentWaveIndex + 1} completed!");
         
-        // Mark wave as complete in GameData
+        // Mark wave as complete in GameData (this increments the wave)
         GameData.CompleteWave();
         
         // Add wave rewards to inventory
@@ -246,9 +321,19 @@ public class CombatManager : MonoBehaviour
             }
         }
         
-        // For prototype: repeat wave 1 indefinitely for testing
-        // In full game, you'd increment currentWaveIndex here
-        Debug.Log("[CombatManager] Proceeding to minion assembly for next wave");
+        // Advance to next wave
+        currentWaveIndex++;
+        int newWave = GameData.GetCurrentWave();
+        
+        Debug.Log($"[CombatManager] Wave progression: {currentWaveIndex} -> {newWave}. Proceeding to minion assembly for next wave");
+        
+        // Check if game is complete
+        if (newWave > 20) // Assuming 20 waves total
+        {
+            Debug.Log("[CombatManager] All waves completed! Victory!");
+            HandleGameVictory();
+            return;
+        }
         
         // Return to minion assembly where the card selection overlay is available
         SceneManager.LoadScene("MinionAssembly");

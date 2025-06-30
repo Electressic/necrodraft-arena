@@ -34,10 +34,18 @@ public class EnemyController : Unit
     {
         enemyData = data;
         
-        // Use enemy data stats
-        Initialize(data.maxHP, data.attackPower, data.moveSpeed);
+        // Apply wave-based scaling for progressive difficulty
+        int currentWave = GameData.GetCurrentWave();
+        float scaleMultiplier = 1.0f + ((currentWave - 1) * 0.10f); // 10% increase per wave (reduced from 15%)
+        
+        int scaledHP = Mathf.RoundToInt(data.maxHP * scaleMultiplier);
+        int scaledAttack = Mathf.RoundToInt(data.attackPower * scaleMultiplier);
+        float scaledSpeed = data.moveSpeed * (1.0f + ((currentWave - 1) * 0.05f)); // 5% speed increase per wave
+        
+        // Use scaled stats
+        Initialize(scaledHP, scaledAttack, scaledSpeed);
         attackRange = data.attackRange;
-        attackSpeed = data.attackSpeed;
+        attackSpeed = data.attackSpeed * (1.0f + ((currentWave - 1) * 0.08f)); // 8% attack speed increase
         
         // Update visual appearance
         if (spriteRenderer != null && data.enemySprite != null)
@@ -46,9 +54,15 @@ public class EnemyController : Unit
             spriteRenderer.color = data.enemyColor;
         }
         
-        gameObject.name = data.enemyName;
+        // Add wave indicator to name for higher waves
+        string displayName = data.enemyName;
+        if (currentWave > 3)
+        {
+            displayName = $"{data.enemyName} (W{currentWave})";
+        }
+        gameObject.name = displayName;
         
-        Debug.Log($"[EnemyController] Initialized {data.enemyName} with {data.maxHP} HP and {data.attackPower} ATK");
+        Debug.Log($"[EnemyController] Initialized {displayName} with {scaledHP} HP, {scaledAttack} ATK (x{scaleMultiplier:F2} scaling for wave {currentWave})");
     }
     
     void FindNearestMinion()

@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 2558
     height: 1381
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Scene
   m_RootView: {fileID: 6}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 37
+  controlID: 76
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -326,7 +326,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Art/Sprites/UI
+    - Assets/Prefabs/Minions
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -336,16 +336,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Art/Sprites/UI
+  - Assets/Prefabs/Minions
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\maxim\Brain\GitProjects\private\necrodraft-arena
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 19}
-    m_SelectedIDs: 20d30000
-    m_LastClickedID: 54048
-    m_ExpandedIDs: 0000000086b6000088b600008ab60000
+    m_SelectedIDs: b2b90000
+    m_LastClickedID: 47538
+    m_ExpandedIDs: 000000008eb6000090b6000092b6000094b6000096b60000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -374,7 +374,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000086b6000088b600008ab60000
+    m_ExpandedIDs: 000000008eb6000090b6000092b6000094b6000096b60000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -400,8 +400,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: fab30000
-    m_LastClickedInstanceID: 46074
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000deb5000000000000f0b40000
     m_RenameOverlay:
@@ -522,7 +522,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: b027ffff5833ffff6a33ffff0236ffff1236ffff2c36ffff3c36ffff6836ffffa636ffffca37ffffb2b30000ceb30000e8b3000010b4000016b400001cb400007ab4000080b400008cb40000c4b40000
+      m_ExpandedIDs: 5088ffff0af5ffff36f7ffff04fbffffa2b70000fab700004eb80000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1014,9 +1014,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 802.5297, y: 391.07315, z: -4.2221594}
+    m_Target: {x: 734.5, y: 369, z: 0}
     speed: 2
-    m_Value: {x: 802.5297, y: 391.07315, z: -4.2221594}
+    m_Value: {x: 734.5, y: 369, z: 0}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1066,9 +1066,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 492.9241
+    m_Target: 821.9801
     speed: 2
-    m_Value: 492.9241
+    m_Value: 821.9801
   m_Ortho:
     m_Target: 1
     speed: 2

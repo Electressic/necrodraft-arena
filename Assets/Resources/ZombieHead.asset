@@ -13,8 +13,22 @@ MonoBehaviour:
   m_Name: ZombieHead
   m_EditorClassIdentifier: 
   partName: New Part
+  icon: {fileID: 0}
   type: 0
-  visual: {fileID: 0}
-  hpBonus: 10
-  attackBonus: 5
+  theme: 0
+  rarity: 0
+  stats:
+    health: 10
+    attack: 5
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
+  specialAbility: 0
+  abilityValue: 0
   description: A rotting zombie head that boosts health
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

@@ -58,7 +58,7 @@ public class DynamicPartTester : MonoBehaviour
             {
                 // Randomize properties for variety
                 testTheme = (PartData.PartTheme)Random.Range(0, 3);
-                testRarity = (PartData.PartRarity)Random.Range(0, 3);
+                testRarity = (PartData.PartRarity)Random.Range(0, 4); // Now includes Uncommon
                 testPartType = (PartData.PartType)Random.Range(0, 4);
                 testAbility = (PartData.SpecialAbility)Random.Range(1, 9); // Skip None
             }
@@ -112,7 +112,7 @@ public class DynamicPartTester : MonoBehaviour
     {
         string[] themeAdjectives = { "Bone", "Flesh", "Spectral" };
         string[] partNames = { "Head", "Torso", "Arms", "Legs" };
-        string[] rarityPrefix = { "", "Superior", "Legendary" };
+        string[] rarityPrefix = { "", "Sturdy", "Superior", "Legendary" }; // Common, Uncommon, Rare, Epic
         
         string themeAdj = themeAdjectives[(int)testTheme];
         string partName = partNames[(int)testPartType];
@@ -126,9 +126,53 @@ public class DynamicPartTester : MonoBehaviour
         Debug.Log($"Theme: {part.theme} | Rarity: {part.rarity} | Set Bonus: {part.specialAbility}");
         Debug.Log($"Stats: {part.stats.GetStatsText()}");
         
-        // Show theme affinity analysis
-        var chances = PartStatsGenerator.GetThemeStatChances(part.theme);
-        Debug.Log($"Theme Affinities - Health: {chances.healthChance:P0}, Speed: {chances.moveSpeedChance:P0}, Crit: {chances.critChanceChance:P0}");
+        // Show budget system analysis
+        int statBudget = GetStatBudgetForRarity(part.rarity);
+        int statCount = CountNonZeroStats(part.stats);
+        int usedBudget = CalculateUsedBudget(part.stats);
+        
+        Debug.Log($"Budget Analysis - Target: {statBudget} points, Used: {usedBudget} points, Stats: {statCount}, Efficiency: {(float)usedBudget/statBudget:P0}");
+    }
+    
+    private int GetStatBudgetForRarity(PartData.PartRarity rarity)
+    {
+        return rarity switch
+        {
+            PartData.PartRarity.Common => 12,
+            PartData.PartRarity.Uncommon => 20,
+            PartData.PartRarity.Rare => 32,
+            PartData.PartRarity.Epic => 50,
+            _ => 12
+        };
+    }
+    
+    private int CountNonZeroStats(PartData.PartStats stats)
+    {
+        int count = 0;
+        if (stats.health > 0) count++;
+        if (stats.attack > 0) count++;
+        if (stats.defense > 0) count++;
+        if (stats.attackSpeed > 0) count++;
+        if (stats.critChance > 0) count++;
+        if (stats.critDamage > 0) count++;
+        if (stats.moveSpeed > 0) count++;
+        if (stats.range > 0) count++;
+        return count;
+    }
+    
+    private int CalculateUsedBudget(PartData.PartStats stats)
+    {
+        // Calculate budget usage based on stat costs (matching PartStatsGenerator)
+        int budget = 0;
+        budget += Mathf.RoundToInt(stats.health / 0.05f * 1);    // Convert 5% per point back to points (1 point per 5% HP)
+        budget += Mathf.RoundToInt(stats.attack / 0.04f * 1);    // Convert 4% per point back to points (1 point per 4% ATK)
+        budget += Mathf.RoundToInt(stats.defense / 0.03f * 2);   // Convert 3% per point back to points (2 points per 3% DEF)
+        budget += Mathf.RoundToInt(stats.attackSpeed * 100 * 1); // 1 point per 1%
+        budget += Mathf.RoundToInt(stats.critChance * 100 * 2);  // 2 points per 1%
+        budget += Mathf.RoundToInt(stats.critDamage * 100 * 1);  // 1 point per 1%
+        budget += Mathf.RoundToInt(stats.moveSpeed * 100 * 1);   // 1 point per 1%
+        budget += Mathf.RoundToInt(stats.range * 100 * 2);       // 2 points per 1%
+        return budget;
     }
     
     private PartData CreateTestPart(PartData.SpecialAbility ability)

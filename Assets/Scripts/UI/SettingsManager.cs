@@ -324,61 +324,48 @@ public class SettingsManager : MonoBehaviour
     {
         isInitializing = true;
         
-        // Check if sliders already have values set in Unity (respect designer's choices)
-        // Only use PlayerPrefs if sliders are at default Unity values (0)
+        // ALWAYS load saved settings from PlayerPrefs if they exist
+        // This ensures user preferences persist between scenes
         
         // Load and apply master volume
         if (masterVolumeSlider != null)
         {
-            if (masterVolumeSlider.value == 0f) // Only load from PlayerPrefs if slider is at default
-            {
-                float savedVolume = PlayerPrefs.GetFloat(MASTER_VOLUME_KEY, 0.8f);
-                masterVolumeSlider.value = savedVolume * 100f;
-                originalMasterVolume = savedVolume;
-            }
-            else // Use the value set in Unity Inspector
-            {
-                originalMasterVolume = masterVolumeSlider.value / 100f;
-            }
+            // Always prioritize saved settings over Unity Inspector defaults
+            float savedVolume = PlayerPrefs.GetFloat(MASTER_VOLUME_KEY, unityDefaultMasterVolume / 100f);
+            masterVolumeSlider.value = savedVolume * 100f;
+            originalMasterVolume = savedVolume;
+            
             UpdateVolumeText(masterVolumeText, masterVolumeSlider.value);
-            SetMasterVolume(masterVolumeSlider.value / 100f);
+            SetMasterVolume(savedVolume);
         }
         
         // Load and apply music volume
         if (musicVolumeSlider != null)
         {
-            if (musicVolumeSlider.value == 0f) // Only load from PlayerPrefs if slider is at default
-            {
-                float savedVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, 0.7f);
-                musicVolumeSlider.value = savedVolume * 100f;
-                originalMusicVolume = savedVolume;
-            }
-            else // Use the value set in Unity Inspector
-            {
-                originalMusicVolume = musicVolumeSlider.value / 100f;
-            }
+            // Always prioritize saved settings over Unity Inspector defaults
+            float savedVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, unityDefaultMusicVolume / 100f);
+            musicVolumeSlider.value = savedVolume * 100f;
+            originalMusicVolume = savedVolume;
+            
             UpdateVolumeText(musicVolumeText, musicVolumeSlider.value);
-            SetMusicVolume(musicVolumeSlider.value / 100f);
+            SetMusicVolume(savedVolume);
         }
         
         // Load and apply SFX volume
         if (sfxVolumeSlider != null)
         {
-            if (sfxVolumeSlider.value == 0f) // Only load from PlayerPrefs if slider is at default
-            {
-                float savedVolume = PlayerPrefs.GetFloat(SFX_VOLUME_KEY, 0.8f);
-                sfxVolumeSlider.value = savedVolume * 100f;
-                originalSfxVolume = savedVolume;
-            }
-            else // Use the value set in Unity Inspector
-            {
-                originalSfxVolume = sfxVolumeSlider.value / 100f;
-            }
+            // Always prioritize saved settings over Unity Inspector defaults
+            float savedVolume = PlayerPrefs.GetFloat(SFX_VOLUME_KEY, unityDefaultSfxVolume / 100f);
+            sfxVolumeSlider.value = savedVolume * 100f;
+            originalSfxVolume = savedVolume;
+            
             UpdateVolumeText(sfxVolumeText, sfxVolumeSlider.value);
-            SetSFXVolume(sfxVolumeSlider.value / 100f);
+            SetSFXVolume(savedVolume);
         }
         
         isInitializing = false;
+        
+        Debug.Log($"[SettingsManager] Loaded settings - Master: {(masterVolumeSlider?.value ?? 0):F0}%, Music: {(musicVolumeSlider?.value ?? 0):F0}%, SFX: {(sfxVolumeSlider?.value ?? 0):F0}%");
     }
     
     public void ResetToDefaults()

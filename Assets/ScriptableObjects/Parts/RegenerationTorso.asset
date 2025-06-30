@@ -15,9 +15,21 @@ MonoBehaviour:
   partName: Living Torso
   icon: {fileID: 0}
   type: 1
+  theme: 0
   rarity: 1
-  hpBonus: 20
-  attackBonus: -2
+  stats:
+    health: 20
+    attack: 0
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
   specialAbility: 4
   abilityValue: 0
-  description: A torso infused with dark life magic that slowly regenerates 1 HP every 3 seconds. 
+  description: A torso infused with dark life magic that slowly regenerates 1 HP
+    every 3 seconds.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: -2

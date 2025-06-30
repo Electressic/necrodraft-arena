@@ -83,6 +83,12 @@ public static class GameData
         }
         Debug.Log($"[GameData] Wave {currentWave - 1} completed. Now on wave {currentWave}");
         
+        // Award experience to minions for completing the wave
+        MinionManager.AwardBattleExperience();
+        
+        // Check for minion unlocks when advancing to a new wave
+        MinionManager.CheckForMinionUnlocks();
+        
         // Notify that a wave was completed (for card selection reset)
         NotifyWaveCompleted();
     }

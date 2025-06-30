@@ -25,6 +25,11 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
     public Color validDropColor = Color.green;
     public Color invalidDropColor = Color.red;
     
+    [Header("Progression UI")]
+    public TMPro.TextMeshProUGUI levelText;          // NEW: Display minion level
+    public UnityEngine.UI.Slider experienceBar;     // NEW: XP progress bar
+    public TMPro.TextMeshProUGUI experienceText;    // NEW: XP numbers (optional)
+    
     // Private fields
     private Minion representedMinion;
     private MinionAssemblyManager manager;
@@ -222,9 +227,36 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
             UpdateSlotDisplay(partType);
         }
         
+        // Update progression display
+        UpdateProgressionDisplay();
+        
         // Ensure normal background color
         if (backgroundImage != null)
             backgroundImage.color = normalColor;
+    }
+    
+    void UpdateProgressionDisplay()
+    {
+        if (representedMinion == null) return;
+        
+        // Update level text
+        if (levelText != null)
+        {
+            levelText.text = $"Level {representedMinion.level}";
+        }
+        
+        // Update experience bar
+        if (experienceBar != null)
+        {
+            float progress = representedMinion.GetExperienceProgress();
+            experienceBar.value = progress;
+        }
+        
+        // Update experience text (optional detailed view)
+        if (experienceText != null)
+        {
+            experienceText.text = representedMinion.GetExperienceText();
+        }
     }
     
     void UpdateSlotDisplay(PartData.PartType partType)

@@ -15,9 +15,20 @@ MonoBehaviour:
   partName: Toxic Skull
   icon: {fileID: 0}
   type: 0
+  theme: 0
   rarity: 1
-  hpBonus: 5
-  attackBonus: 4
+  stats:
+    health: 5
+    attack: 4
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
   specialAbility: 3
   abilityValue: 0
   description: A festering skull that poisons enemies, dealing damage over time.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

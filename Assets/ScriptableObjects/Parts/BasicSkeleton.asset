@@ -15,9 +15,20 @@ MonoBehaviour:
   partName: Basic Bone Head
   icon: {fileID: 0}
   type: 0
+  theme: 0
   rarity: 0
-  hpBonus: 6
-  attackBonus: 3
+  stats:
+    health: 6
+    attack: 3
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
   specialAbility: 0
   abilityValue: 0
-  description: A simple skeleton head with balanced stats and no special abilities. 
+  description: A simple skeleton head with balanced stats and no special abilities.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

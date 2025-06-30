@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 public class CardSelectionOverlay : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class CardSelectionOverlay : MonoBehaviour
     public TMPro.TextMeshProUGUI titleText;
     public TMPro.TextMeshProUGUI instructionsText;
     public Image backgroundDim;
+    
+    [Header("Card Background Sprites")]
+    public Sprite commonCardSprite;
+    public Sprite rareCardSprite;
+    public Sprite epicCardSprite;
     
     [Header("Animation Settings")]
     public float fadeInDuration = 0.3f;
@@ -48,6 +54,33 @@ public class CardSelectionOverlay : MonoBehaviour
         // Start hidden but keep GameObject active
         InitializeAsHidden();
         SetupButtonListeners();
+        LoadCardBackgroundSprites();
+        SetupBackgroundDim();
+    }
+    
+    void LoadCardBackgroundSprites()
+    {
+        // Load card background sprites from Resources
+        if (commonCardSprite == null)
+            commonCardSprite = Resources.Load<Sprite>("UI_Card_Background");
+        if (rareCardSprite == null)
+            rareCardSprite = Resources.Load<Sprite>("UI_Card_Background_Rare");
+        if (epicCardSprite == null)
+            epicCardSprite = Resources.Load<Sprite>("UI_Card_Background_Epic");
+            
+        if (enableDebugLogging)
+        {
+            Debug.Log($"[CardSelectionOverlay] Loaded card backgrounds - Common: {(commonCardSprite != null ? "✓" : "✗")}, Rare: {(rareCardSprite != null ? "✓" : "✗")}, Epic: {(epicCardSprite != null ? "✓" : "✗")}");
+        }
+    }
+    
+    void SetupBackgroundDim()
+    {
+        if (backgroundDim != null)
+        {
+            // Set background dim to dark semi-transparent
+            backgroundDim.color = new Color(0f, 0f, 0f, 0.7f); // Dark background instead of white
+        }
     }
     
     void InitializeAsHidden()
@@ -108,6 +141,56 @@ public class CardSelectionOverlay : MonoBehaviour
         
         if (enableDebugLogging)
             Debug.Log("[CardSelectionOverlay] Showing overlay");
+    }
+    
+    // New method for debug testing - shows overlay with specific cards
+    public void ShowOverlayWithTestCards(PartData[] testCards, string title = "Debug Test", string instructions = "Select any card")
+    {
+        if (isAnimating) return;
+        
+        // Check if resuming from temporary hide
+        if (isTemporarilyHidden)
+        {
+            ResumeOverlay();
+            return;
+        }
+        
+        // Update UI text
+        if (titleText != null)
+            titleText.text = title;
+        if (instructionsText != null)
+            instructionsText.text = instructions;
+            
+        // Set specific test cards instead of drawing random ones
+        SetTestCards(testCards);
+        
+        // Reset selection state
+        selectedPart = null;
+        selectedCardIndex = -1;
+        hasSelectedPartThisSession = false;
+        UpdateUIState();
+        
+        // Show with animation
+        StartCoroutine(FadeInOverlay());
+        
+        if (enableDebugLogging)
+            Debug.Log($"[CardSelectionOverlay] Showing overlay with test cards: {string.Join(", ", testCards.Select(p => p != null ? $"{p.partName} ({p.rarity})" : "null"))}");
+    }
+    
+    // Helper method to set specific cards and update display
+    void SetTestCards(PartData[] testCards)
+    {
+        // Set the cards
+        for (int i = 0; i < currentCards.Length; i++)
+        {
+            currentCards[i] = i < testCards.Length ? testCards[i] : null;
+        }
+        
+        // Update the display for all cards
+        for (int i = 0; i < currentCards.Length; i++)
+        {
+            UpdateCardDisplay(i);
+        }
     }
     
     public void HideOverlay()
@@ -222,35 +305,42 @@ public class CardSelectionOverlay : MonoBehaviour
     
     void DrawCards()
     {
-        // Get all available parts from Resources folder dynamically
-        List<PartData> allParts = GetAllAvailableParts();
+        // Generate dynamic parts based on current wave and player class
+        int currentWave = GetCurrentWave();
+        NecromancerClass playerClass = GetCurrentPlayerClass();
         
-        if (allParts.Count < 3)
+        // Generate 3 unique random parts using dynamic system
+        List<PartData> generatedParts = DynamicPartGenerator.GenerateCardSelection(currentWave, playerClass, 3);
+        
+        if (generatedParts.Count < 3)
         {
-            Debug.LogError("[CardSelectionOverlay] Not enough parts available! Need at least 3.");
+            Debug.LogError("[CardSelectionOverlay] Failed to generate enough parts!");
             return;
         }
         
-        // Create a shuffled copy of all parts
-        List<PartData> shuffledParts = new List<PartData>(allParts);
-        
-        // Draw 3 unique random parts
+        // Set the generated parts as current cards
         for (int i = 0; i < 3; i++)
         {
-            if (shuffledParts.Count > 0)
-            {
-                int randomIndex = Random.Range(0, shuffledParts.Count);
-                currentCards[i] = shuffledParts[randomIndex];
-                shuffledParts.RemoveAt(randomIndex); // Prevent duplicates
-                
-                UpdateCardDisplay(i);
-            }
+            currentCards[i] = i < generatedParts.Count ? generatedParts[i] : null;
+            UpdateCardDisplay(i);
         }
         
         if (enableDebugLogging)
         {
-            Debug.Log($"[CardSelectionOverlay] Drew cards: {currentCards[0]?.partName}, {currentCards[1]?.partName}, {currentCards[2]?.partName}");
+            Debug.Log($"[CardSelectionOverlay] Generated cards for wave {currentWave}: {currentCards[0]?.partName}, {currentCards[1]?.partName}, {currentCards[2]?.partName}");
         }
+    }
+    
+    // Helper method to get current wave
+    int GetCurrentWave()
+    {
+        return GameData.GetCurrentWave();
+    }
+    
+    // Helper method to get current player class
+    NecromancerClass GetCurrentPlayerClass()
+    {
+        return GameData.GetSelectedClass();
     }
     
     void UpdateCardDisplay(int cardIndex)
@@ -260,15 +350,67 @@ public class CardSelectionOverlay : MonoBehaviour
             
         PartData part = currentCards[cardIndex];
         
+        // Set the card background sprite directly on the button's Image component
+        Image cardImage = cardButtons[cardIndex].GetComponent<Image>();
+        if (cardImage != null)
+        {
+            Sprite spriteToUse = GetSpriteForRarity(part.rarity);
+            if (spriteToUse != null)
+            {
+                cardImage.sprite = spriteToUse;
+            }
+        }
+        
         // Get rarity color for highlighting
         Color rarityColor = part.GetRarityColor();
+        
+        // Use the new stats system instead of legacy hpBonus/attackBonus
+        string statsText = "";
+        if (part.stats.HasAnyStats())
+        {
+            // Build stats display with better formatting
+            List<string> statsList = new List<string>();
+            if (part.stats.health > 0) statsList.Add($"<color=green>HP:</color> +{part.stats.health}");
+            if (part.stats.attack > 0) statsList.Add($"<color=red>ATK:</color> +{part.stats.attack}");
+            if (part.stats.defense > 0) statsList.Add($"<color=orange>DEF:</color> +{part.stats.defense}");
+            if (part.stats.attackSpeed > 0) statsList.Add($"<color=yellow>AS:</color> +{(part.stats.attackSpeed*100):F0}%");
+            if (part.stats.critChance > 0) statsList.Add($"<color=yellow>CRIT:</color> +{(part.stats.critChance*100):F0}%");
+            if (part.stats.critDamage > 0) statsList.Add($"<color=yellow>CD:</color> +{(part.stats.critDamage*100):F0}%");
+            if (part.stats.moveSpeed > 0) statsList.Add($"<color=#00FFFF>SPD:</color> +{(part.stats.moveSpeed*100):F0}%");
+            if (part.stats.range > 0) statsList.Add($"<color=#FF00FF>RNG:</color> +{(part.stats.range*100):F0}%");
+            
+            // Format based on number of stats for better readability
+            if (statsList.Count <= 2)
+            {
+                // Few stats: keep on one line
+                statsText = string.Join("  ", statsList);
+            }
+            else if (statsList.Count <= 4)
+            {
+                // Medium stats: split into two lines
+                int half = statsList.Count / 2;
+                string firstLine = string.Join("  ", statsList.GetRange(0, half));
+                string secondLine = string.Join("  ", statsList.GetRange(half, statsList.Count - half));
+                statsText = $"{firstLine}\n{secondLine}";
+            }
+            else
+            {
+                // Many stats: use multiple lines
+                statsText = string.Join("  ", statsList.GetRange(0, 3)) + "\n" + 
+                           string.Join("  ", statsList.GetRange(3, statsList.Count - 3));
+            }
+        }
+        else
+        {
+            // Fallback to legacy system if new stats are empty
+            statsText = $"<color=green>HP:</color> +{part.GetHPBonus()}  <color=red>ATK:</color> +{part.GetAttackBonus()}";
+        }
         
         // Format card text display with rarity and abilities
         string cardText = $"<size=18><b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{part.partName}</color></b></size>\n" +
                          $"<size=12><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()}]</color></size>\n\n" +
                          $"<color=yellow>Type:</color> {part.type}\n\n" +
-                         $"<color=green>HP:</color> +{part.hpBonus}  " +
-                         $"<color=red>ATK:</color> +{part.attackBonus}\n\n";
+                         $"{statsText}\n\n";
         
         // Add special ability if it exists (smaller text)
         string abilityDesc = part.GetAbilityDescription();
@@ -281,16 +423,23 @@ public class CardSelectionOverlay : MonoBehaviour
         
         cardTexts[cardIndex].text = cardText;
         
-        // Set initial rarity background color
+        // Reset button colors to be more subtle since we're using background sprites
         ColorBlock colors = cardButtons[cardIndex].colors;
-        Color buttonColor = rarityColor;
-        buttonColor.a = 0.3f; // Subtle background
-        
-        colors.normalColor = buttonColor;
-        colors.highlightedColor = buttonColor * 1.2f;
-        colors.pressedColor = buttonColor * 0.8f;
-        
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1.1f, 1.1f, 1.1f, 1f);
+        colors.pressedColor = new Color(0.9f, 0.9f, 0.9f, 1f);
         cardButtons[cardIndex].colors = colors;
+    }
+    
+    Sprite GetSpriteForRarity(PartData.PartRarity rarity)
+    {
+        switch (rarity)
+        {
+            case PartData.PartRarity.Common: return commonCardSprite;
+            case PartData.PartRarity.Rare: return rareCardSprite;
+            case PartData.PartRarity.Epic: return epicCardSprite;
+            default: return commonCardSprite;
+        }
     }
     
     public void SelectCard(int cardIndex)
@@ -318,21 +467,18 @@ public class CardSelectionOverlay : MonoBehaviour
             if (i == selectedCardIndex)
             {
                 // Highlight selected card with bright green border effect
-                colors.normalColor = Color.green;
-                colors.highlightedColor = new Color(0.8f, 1f, 0.8f);
-                colors.pressedColor = new Color(0.7f, 0.9f, 0.7f);
-                colors.selectedColor = Color.green;
+                colors.normalColor = new Color(0.8f, 1f, 0.8f, 1f);
+                colors.highlightedColor = new Color(0.9f, 1f, 0.9f, 1f);
+                colors.pressedColor = new Color(0.7f, 0.9f, 0.7f, 1f);
+                colors.selectedColor = new Color(0.8f, 1f, 0.8f, 1f);
             }
-            else if (currentCards[i] != null)
+            else
             {
-                // Preserve rarity colors for non-selected cards
-                Color rarityColor = currentCards[i].GetRarityColor();
-                rarityColor.a = 0.3f; // Keep subtle background
-                
-                colors.normalColor = rarityColor;
-                colors.highlightedColor = rarityColor * 1.2f;
-                colors.pressedColor = rarityColor * 0.8f;
-                colors.selectedColor = rarityColor;
+                // Reset to normal colors for non-selected cards
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(1.1f, 1.1f, 1.1f, 1f);
+                colors.pressedColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+                colors.selectedColor = Color.white;
             }
             
             cardButtons[i].colors = colors;

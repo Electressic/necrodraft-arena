@@ -15,9 +15,21 @@ MonoBehaviour:
   partName: Berserker Skull
   icon: {fileID: 0}
   type: 0
+  theme: 0
   rarity: 2
-  hpBonus: 12
-  attackBonus: 10
+  stats:
+    health: 12
+    attack: 10
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
   specialAbility: 1
   abilityValue: 0
-  description: A rage-filled skull that enters berserk mode when wounded, gaining +50% attack speed below 50% health. 
+  description: A rage-filled skull that enters berserk mode when wounded, gaining
+    +50% attack speed below 50% health.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

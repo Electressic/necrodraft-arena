@@ -15,9 +15,20 @@ MonoBehaviour:
   partName: Thorn-Covered Arms
   icon: {fileID: 0}
   type: 2
+  theme: 0
   rarity: 1
-  hpBonus: 8
-  attackBonus: 3
+  stats:
+    health: 8
+    attack: 3
+    defense: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
+    moveSpeed: 0
+    range: 0
   specialAbility: 7
   abilityValue: 0
-  description: Arms covered in sharp thorns that reflect 1 damage back to attackers. 
+  description: Arms covered in sharp thorns that reflect 1 damage back to attackers.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

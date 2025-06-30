@@ -7,9 +7,10 @@ public class PartData : ScriptableObject
     
     public enum PartRarity 
     { 
-        Common,     // White - Basic parts, 1-2 stats
-        Rare,       // Blue - Good parts, 2-3 stats  
-        Epic        // Purple - Powerful parts, 3-4 stats
+        Common,     // White - Basic parts, 1-2 stats, 12 budget
+        Uncommon,   // Green - Solid parts, 2 stats, 20 budget
+        Rare,       // Blue - Good parts, 2-3 stats, 32 budget
+        Epic        // Purple - Powerful parts, 3-4 stats, 50 budget
     }
     
     public enum PartTheme
@@ -35,10 +36,10 @@ public class PartData : ScriptableObject
     [System.Serializable]
     public class PartStats
     {
-        [Header("Core Stats")]
-        public int health = 0;              // Flat HP bonus
-        public int attack = 0;              // Flat attack bonus
-        public int defense = 0;             // Flat damage reduction
+        [Header("Core Stats (Percentage Multipliers)")]
+        public float health = 0.0f;         // Health multiplier bonus (0.0 to 1.0+)
+        public float attack = 0.0f;         // Attack multiplier bonus (0.0 to 1.0+)
+        public float defense = 0.0f;        // Defense multiplier bonus (0.0 to 1.0+)
         
         [Header("Combat Stats")]
         public float attackSpeed = 0.0f;    // Attack speed multiplier bonus (0.0 to 1.0+)
@@ -60,9 +61,9 @@ public class PartData : ScriptableObject
         {
             var stats = new System.Collections.Generic.List<string>();
             
-            if (health > 0) stats.Add($"+{health} HP");
-            if (attack > 0) stats.Add($"+{attack} ATK");
-            if (defense > 0) stats.Add($"+{defense} DEF");
+            if (health > 0) stats.Add($"+{(health*100):F0}% HP");
+            if (attack > 0) stats.Add($"+{(attack*100):F0}% ATK");
+            if (defense > 0) stats.Add($"+{(defense*100):F0}% DEF");
             if (attackSpeed > 0) stats.Add($"+{(attackSpeed*100):F0}% ATK Speed");
             if (critChance > 0) stats.Add($"+{(critChance*100):F0}% Crit Chance");
             if (critDamage > 0) stats.Add($"+{(critDamage*100):F0}% Crit DMG");
@@ -103,6 +104,7 @@ public class PartData : ScriptableObject
         switch (rarity)
         {
             case PartRarity.Common: return Color.white;
+            case PartRarity.Uncommon: return new Color(0.3f, 1f, 0.3f); // Light green
             case PartRarity.Rare: return new Color(0.3f, 0.7f, 1f); // Light blue
             case PartRarity.Epic: return new Color(0.7f, 0.3f, 1f); // Purple
             default: return Color.white;
@@ -169,11 +171,13 @@ public class PartData : ScriptableObject
     {
         if (hpBonus > 0 && stats.health == 0)
         {
-            stats.health = hpBonus;
+            // Convert old flat HP bonus to percentage (assume base ~20 HP)
+            stats.health = hpBonus / 20.0f; // Convert flat to ~percentage
         }
         if (attackBonus > 0 && stats.attack == 0)
         {
-            stats.attack = attackBonus;
+            // Convert old flat attack bonus to percentage (assume base ~5 ATK)  
+            stats.attack = attackBonus / 5.0f; // Convert flat to ~percentage
         }
         
         // Ensure we have some basic stats if both old and new are empty
@@ -199,6 +203,6 @@ public class PartData : ScriptableObject
     public int attackBonus = 0;
     
     // Backwards compatibility for existing systems
-    public int GetHPBonus() => stats.health > 0 ? stats.health : hpBonus;
-    public int GetAttackBonus() => stats.attack > 0 ? stats.attack : attackBonus;
+    public int GetHPBonus() => stats.health > 0 ? Mathf.RoundToInt(stats.health * 20) : hpBonus; // Convert percentage back to rough flat value
+    public int GetAttackBonus() => stats.attack > 0 ? Mathf.RoundToInt(stats.attack * 5) : attackBonus; // Convert percentage back to rough flat value
 }

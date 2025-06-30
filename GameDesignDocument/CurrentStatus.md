@@ -1,6 +1,28 @@
 # Current Status
 
-## ✅ Implemented Features (Working)
+## 📋 **DESIGN COMPLETED** ✅
+
+### Complete 20-Wave Progression System 📋 **NEW!**
+- **Wave Structure**: 3 acts with strategic milestone waves (4, 8, 12, 16, 20)
+- **Minion Unlocks**: 5-minion system with staggered unlocks and level progression
+- **Rarity Progression**: Common → Uncommon → Rare → Epic with clear drop rates
+- **Stat Budget System**: 12/20/32/50 point budgets with full allocation rules
+- **Enemy Progression**: Escalating difficulty with boss waves and breather wave
+
+### Complete Part Blueprint System 📋 **NEW!**
+- **3 Full Class Sets**: Skeleton (16 parts), Zombie (16 parts), Ghost (16 parts)
+- **4 Generic Parts**: Ancient Skull, Preserved Tissue, Grafted Bone, Swift Bones
+- **Stat Pool Definitions**: Primary/secondary pools by slot with clear distribution rules
+- **Set Bonus Scaling**: All 12 set bonuses with Tier 1/2/3 progression defined
+- **Cross-Set Synergy**: 2+2 builds, pure builds, and hybrid strategies mapped
+
+### Comprehensive Balance Framework 📋 **NEW!**
+- **Loot Distribution**: Class-based 60/15/15/10 drop rates
+- **Power Curves**: Early/mid/late game progression with strategic choice points
+- **Meta Balance**: Rock-paper-scissors between pure builds, hybrid viability
+- **Skill Expression**: Draft/build/meta skill tiers clearly defined
+
+## ✅ **CODE IMPLEMENTED** (Working)
 
 ### Phase 1: Combat Juice Effects ✅
 - **Hit Flash Effects**: Units flash white when taking damage
@@ -56,64 +78,96 @@
 - **Basic Minions**: Working minion archetypes
 - **Needs**: Thematic organization, expanded part library
 
-## ❌ Not Yet Implemented
+## ❌ **IMPLEMENTATION GAP** - Design vs Code
 
-### Priority 1: UI Polish & Integration
-- **Current**: Parts show basic stats in old format
-- **Needed**: Update all UI to display new dynamic stats (8 stat types)
-- **Impact**: Players need to see all the new stats we've implemented
+### Critical Missing: Updated Stat Generation System
+- **Design Status**: ✅ Complete stat budget system (12/20/32/50 points)
+- **Code Status**: ❌ Still uses old random ranges, missing Uncommon rarity
+- **Issue**: Epic parts show only 1 stat instead of 3-4 stats with full budget
+- **Blocker**: Current `PartStatsGenerator.cs` doesn't implement budget allocation
 
-### Priority 2: Content Generation & Testing
-- **Current**: Existing parts still use old static stat system
-- **Needed**: Generate diverse dynamic parts for testing and balancing
-- **Impact**: Need variety to test the strategic depth of new system
+### Critical Missing: Complete Rarity System  
+- **Design Status**: ✅ Common/Uncommon/Rare/Epic with clear progression
+- **Code Status**: ❌ Only has Common/Rare/Epic in `PartData.cs` enum
+- **Issue**: Missing Uncommon rarity breaks mid-game progression  
+- **Blocker**: Generation system can't create proper wave 4-12 parts
 
-### Priority 3: Advanced UI Features
-- **Current**: Unity's default UI components
-- **Needed**: Custom pixel art UI matching style guide
-- **Impact**: Visual polish and professional appearance
+### Missing: Part Blueprint Implementation
+- **Design Status**: ✅ 48 specific parts with stat pools defined
+- **Code Status**: ❌ Generic generation without part-specific rules
+- **Issue**: No class identity, no primary/secondary stat pool system
+- **Blocker**: No way to generate themed parts as designed
 
-### Priority 4: Scene Flow Improvements
-- **Current**: Separate card selection scene with confusing navigation
-- **Needed**: Card selection overlay system integrated with minion assembly
-- **Impact**: Smoother gameplay flow and better strategic planning
+### Missing: 20-Wave Progression Implementation  
+- **Design Status**: ✅ Complete wave-by-wave progression with unlock system
+- **Code Status**: ❌ Basic testing waves, no minion unlock system
+- **Issue**: No progression structure or milestone rewards
+- **Blocker**: No wave management or progression tracking system
 
-## 🎯 Next Development Priorities
+### Missing: Cross-Set Synergy Rules
+- **Design Status**: ✅ 2+2 builds, tier progression, generic part compensation
+- **Code Status**: ❌ Basic set bonus detection, no tier system  
+- **Issue**: No strategic depth in set building decisions
+- **Blocker**: Set bonus system doesn't match design complexity
 
-### Immediate (Next Session)
-1. **Update UI Systems**: Display all 8 dynamic stats in inventory and minion panels
-2. **Generate Test Parts**: Create variety of parts with new system for testing
-3. **Verify Set Bonuses**: Ensure 2+ part requirement works correctly in gameplay
-4. **Balance Testing**: Adjust stat ranges and theme affinities based on gameplay
+## 🎯 Implementation Roadmap (Design → Code)
 
-### Short Term (1-2 Weeks)  
-1. **Card Selection Overlay**: Convert card selection to prefab overlay system
-2. **Progressive Minion Unlocking**: Start with 1 minion, unlock more with waves
-3. **Settings Integration**: Add settings access to all scenes
-4. **Visual Polish**: Update part display to show theme colors and enhanced tooltips
+### **Phase 1: Core System Implementation** (Next Session)
+*Implement the stat budget system to fix Epic parts issue*
 
-### Medium Term (1-2 Months)
-1. **Advanced Generation**: Fine-tune stat generation algorithms
-2. **Combat Integration**: Ensure all new stats work properly in combat
-3. **Performance Optimization**: Handle larger stat calculations smoothly
-4. **Content Expansion**: Create more set bonus types and part varieties
+1. **Add Uncommon Rarity**: Update `PartData.cs` enum and generation system
+2. **Implement Budget System**: Replace range-based generation with budget allocation  
+3. **Add Primary/Secondary Pools**: Implement stat pool system by part type
+4. **Fix Epic Generation**: Ensure 3-4 stats with full 50-point budget allocation
 
-## 🐛 Known Issues
+### **Phase 2: Part Blueprint System** (1-2 Sessions)
+*Transform generic generation into themed class system*
 
-### Gameplay Issues
-- **UI Display**: Inventory and assembly screens don't show new dynamic stats yet
-- **Content Mismatch**: Existing ScriptableObject parts still use old system
-- **Balance Unknown**: New stat ranges and affinities need gameplay testing
+1. **Create Part Templates**: Define the 48 specific parts from design
+2. **Implement Pool Distribution**: 90%/75%/60%/50% primary pool allocation by rarity
+3. **Add Generic Parts**: Implement +25% budget compensation system
+4. **Theme-Based Generation**: Ensure parts feel distinct by class identity
 
-### Technical Issues
-- **UI Integration**: Need to update all part display systems for 8 stat types
-- **Backwards Compatibility**: Some old systems may expect only HP/ATK stats
-- **Performance**: More complex stat calculations may impact performance
+### **Phase 3: Progression System** (2-3 Sessions)  
+*Implement the 20-wave structure and minion unlocks*
 
-### Polish Issues
-- **Visual Consistency**: Part tooltips need to show theme colors and full stats
-- **Audio Missing**: No sound design implemented yet
-- **Animation Lacking**: Static UI, minimal visual feedback
+1. **Wave Manager**: Create progression tracking through 20 waves
+2. **Minion Unlock System**: Implement 5-minion unlock at waves 4/8/12/16
+3. **Rarity Progression**: Wave-based drop rate changes (Common→Uncommon→Rare→Epic)
+4. **XP & Rewards**: Implement the complete XP and reward structure
+
+### **Phase 4: Advanced Set System** (3-4 Sessions)
+*Implement complex set interactions and tier system*
+
+1. **Set Bonus Tiers**: Implement Tier 1/2/3 scaling for all 12 set bonuses
+2. **Cross-Set Support**: Enable 2+2 builds with multiple Tier 1 bonuses
+3. **New Set Bonuses**: Implement the 12 designed set bonuses with proper effects
+4. **Meta Balance**: Ensure rock-paper-scissors balance between build types
+
+## 🐛 Critical Issues (Design vs Implementation)
+
+### **BLOCKER**: Epic Parts Only Show 1 Stat
+- **Expected**: Epic parts should have 3-4 stats using full 50-point budget
+- **Current**: Epic parts randomly generate 1 stat due to old generation system
+- **Root Cause**: `PartStatsGenerator.cs` uses old range system, not budget allocation
+- **Player Impact**: Epic parts feel weak and unexciting, breaking progression
+
+### **BLOCKER**: Missing Uncommon Rarity
+- **Expected**: Wave 4+ should offer Uncommon parts (20-point budget)
+- **Current**: Only Common/Rare/Epic exist, breaking mid-game progression
+- **Root Cause**: `PartData.PartRarity` enum missing Uncommon
+- **Player Impact**: Awkward difficulty jump from Common to Rare
+
+### **BLOCKER**: No Class Identity in Parts
+- **Expected**: Skeleton parts focus speed/crit, Zombie parts focus HP/defense  
+- **Current**: All parts generate random stats regardless of theme
+- **Root Cause**: No primary/secondary stat pool system implemented
+- **Player Impact**: Parts feel generic, no strategic class building
+
+### Design-Code Synchronization Issues
+- **Set Bonus Names**: Code uses old names, design has new detailed set bonuses
+- **Stat Types**: Code has basic 8 stats, design specifies complex interactions
+- **Progression**: Code has basic waves, design has detailed 20-wave structure
 
 ## 📊 Quality Assessment
 
