@@ -30,6 +30,12 @@ public class CombatManager : MonoBehaviour
     public TMPro.TextMeshProUGUI previewInfoText;
     public GameObject previewPanel;
 
+    [Header("Repositioning")]
+    public Material selectedIndicatorMaterial; // A bright material to highlight the selected unit
+    public GameObject minionNumberPrefab; // TextMeshPro prefab for minion numbers
+    public int selectedMinionForRepositioning { get; private set; } = -1;
+    private Material[] originalIndicatorMaterials;
+
     [Header("Debug")]
     public bool enableDebugMode = false;
 
@@ -40,7 +46,7 @@ public class CombatManager : MonoBehaviour
     private List<MinionController> activeMinions = new List<MinionController>();
     private List<EnemyController> activeEnemies = new List<EnemyController>();
     private bool combatActive = false;
-    private CombatState currentState = CombatState.Preparing;
+    public CombatState currentState { get; private set; } = CombatState.Preparing;
     
     // Preview data
     private List<Vector3> previewMinionPositions = new List<Vector3>();
@@ -204,20 +210,20 @@ public class CombatManager : MonoBehaviour
         Unit unit = previewObject.GetComponent<Unit>();
         if (unit != null) unit.enabled = false;
         
-        // Disable all colliders
+        // Make colliders triggers instead of disabling them
         Collider[] colliders = previewObject.GetComponentsInChildren<Collider>();
         foreach (Collider collider in colliders)
         {
-            collider.enabled = false;
+            collider.isTrigger = true;
         }
         
         Collider2D[] colliders2D = previewObject.GetComponentsInChildren<Collider2D>();
         foreach (Collider2D collider in colliders2D)
         {
-            collider.enabled = false;
+            collider.isTrigger = true;
         }
         
-        // Disable rigidbodies
+        // Disable rigidbodies to prevent movement
         Rigidbody rb = previewObject.GetComponent<Rigidbody>();
         if (rb != null) rb.isKinematic = true;
         
@@ -371,49 +377,59 @@ public class CombatManager : MonoBehaviour
     
     void CreatePreviewIndicators()
     {
-        // Clear any existing indicators
         ClearPreviewIndicators();
-        
-        // Create minion position indicators
-        foreach (Vector3 pos in previewMinionPositions)
+
+        // Create Minion Indicators
+        for (int i = 0; i < previewMinionPositions.Count; i++)
         {
-            GameObject indicator = Instantiate(minionIndicatorPrefab);
-            // Ensure proper positioning with slight Z offset for visibility
-            Vector3 indicatorPos = new Vector3(pos.x, pos.y, pos.z - 0.1f);
-            indicator.transform.position = indicatorPos;
+            Vector3 pos = previewMinionPositions[i];
+            GameObject indicator = Instantiate(minionIndicatorPrefab, pos, Quaternion.identity);
+            indicator.name = $"MinionPreview_{i}";
             indicator.SetActive(true);
             
-            // Add pulsing animation component
-            PreviewIndicatorAnimator animator = indicator.AddComponent<PreviewIndicatorAnimator>();
-            animator.SetColor(new Color(0, 1, 0, 0.8f)); // Green
+            // Add the click handler
+            var clickHandler = indicator.GetComponent<PreviewUnitClickHandler>();
+            if (clickHandler == null)
+            {
+                clickHandler = indicator.AddComponent<PreviewUnitClickHandler>();
+            }
+            clickHandler.combatManager = this;
+            clickHandler.previewIndex = i;
+            clickHandler.selectedMaterial = selectedIndicatorMaterial;
+            
+            // Ensure 2D collider exists for proper clicking
+            if (indicator.GetComponent<Collider2D>() == null)
+            {
+                BoxCollider2D collider = indicator.AddComponent<BoxCollider2D>();
+                collider.isTrigger = true;
+                collider.size = Vector2.one * 0.8f; // Slightly smaller than cell size
+            }
+            
+            // Add numbered text label (1-based)
+            AddMinionNumberLabel(indicator, i + 1);
             
             previewIndicators.Add(indicator);
-            Debug.Log($"[CombatManager] Created minion indicator at {indicatorPos}");
         }
-        
-        // Create enemy position indicators
-        foreach (Vector3 pos in previewEnemyPositions)
+
+        // Create Enemy Indicators (enemies don't need numbering or clicking)
+        for (int i = 0; i < previewEnemyPositions.Count; i++)
         {
-            GameObject indicator = Instantiate(enemyIndicatorPrefab);
-            // Ensure proper positioning with slight Z offset for visibility
-            Vector3 indicatorPos = new Vector3(pos.x, pos.y, pos.z - 0.1f);
-            indicator.transform.position = indicatorPos;
+            Vector3 pos = previewEnemyPositions[i];
+            GameObject indicator = Instantiate(enemyIndicatorPrefab, pos, Quaternion.identity);
+            indicator.name = $"EnemyPreview_{i}";
             indicator.SetActive(true);
-            
-            // Add pulsing animation component
-            PreviewIndicatorAnimator animator = indicator.AddComponent<PreviewIndicatorAnimator>();
-            animator.SetColor(new Color(1, 0, 0, 0.8f)); // Red
-            
             previewIndicators.Add(indicator);
-            Debug.Log($"[CombatManager] Created enemy indicator at {indicatorPos}");
         }
-        
-        Debug.Log($"[CombatManager] Created {previewIndicators.Count} position indicators for preview");
+
+        Debug.Log($"[CombatManager] Created {previewMinionPositions.Count} minion previews and {previewEnemyPositions.Count} enemy previews");
     }
     
     void ClearPreviewIndicators()
     {
-        foreach (GameObject indicator in previewIndicators)
+        // Deselect any minion before clearing
+        DeselectMinion();
+
+        foreach (var indicator in previewIndicators)
         {
             if (indicator != null)
                 Destroy(indicator);
@@ -711,17 +727,17 @@ public class CombatManager : MonoBehaviour
         {
             // ACT 1: FOUNDATION (Waves 1-7) - Learning basic mechanics
             case 1:
-                enemies.Add(("Shambling Corpse", 2, 0f, GridSpawnManager.FormationType.Line));
+                enemies.Add(("Shambling Corpse", 1, 0f, GridSpawnManager.FormationType.Line));
                 break;
             case 2:
-                enemies.Add(("Rotting Zombie", 3, 0f, GridSpawnManager.FormationType.Line));
+                enemies.Add(("Rotting Zombie", 2, 0f, GridSpawnManager.FormationType.Line));
                 break;
             case 3:
                 enemies.Add(("Basic Skeleton", 2, 0f, GridSpawnManager.FormationType.Line));
                 enemies.Add(("Shambling Corpse", 1, 1.5f, GridSpawnManager.FormationType.Line));
                 break;
             case 4:
-                enemies.Add(("Undead Scout", 4, 0f, GridSpawnManager.FormationType.Spread));
+                enemies.Add(("Undead Scout", 3, 0f, GridSpawnManager.FormationType.Spread));
                 break;
             case 5: // First minion unlock wave
                 enemies.Add(("Bone Warrior", 2, 0f, GridSpawnManager.FormationType.Line));
@@ -810,35 +826,36 @@ public class CombatManager : MonoBehaviour
     // Scale enemy stats based on wave progression for balanced difficulty
     void ScaleEnemyForWave(EnemyController enemy, int wave)
     {
-        // Base scaling factors
-        float hpMultiplier = 1f + (wave - 1) * 0.25f;  // 25% HP increase per wave
-        float atkMultiplier = 1f + (wave - 1) * 0.15f; // 15% ATK increase per wave
-        
-        // Additional scaling per act
+        if (enemy == null) return;
+
+        // Don't scale wave 1 enemies
+        if (wave <= 1) return;
+
+        // --- Base Scaling Factors (Reduced) ---
+        // Health scaling reduced from 20% to 12% per wave
+        // Attack scaling reduced from 10% to 7% per wave
+        float hpMultiplier = 1f + (wave - 1) * 0.12f;
+        float atkMultiplier = 1f + (wave - 1) * 0.07f;
+
+        // --- Act-based Scaling (Kept from original logic) ---
         if (wave >= 8) // Act 2
         {
-            hpMultiplier *= 1.5f;
-            atkMultiplier *= 1.3f;
+            hpMultiplier *= 1.2f; // Was 1.5f
+            atkMultiplier *= 1.15f; // Was 1.3f
         }
         if (wave >= 15) // Act 3
         {
-            hpMultiplier *= 2f;
-            atkMultiplier *= 1.5f;
+            hpMultiplier *= 1.5f; // Was 2f
+            atkMultiplier *= 1.3f; // Was 1.5f
         }
-        
-        // Special boss scaling for final waves
-        if (wave >= 19)
-        {
-            hpMultiplier *= 2.5f;
-            atkMultiplier *= 2f;
-        }
-        
-        // Apply scaling
+
+        // Apply scaling directly to the EnemyController's stats (since it inherits from Unit)
         enemy.maxHP = Mathf.RoundToInt(enemy.maxHP * hpMultiplier);
-        enemy.currentHP = enemy.maxHP;
+        enemy.currentHP = enemy.maxHP; // Heal to full scaled HP
         enemy.attackPower = Mathf.RoundToInt(enemy.attackPower * atkMultiplier);
         
-        Debug.Log($"[CombatManager] Scaled enemy for Wave {wave}: HP={enemy.maxHP}, ATK={enemy.attackPower}");
+        if (enableDebugMode)
+            Debug.Log($"[CombatManager] Scaled {enemy.name} for Wave {wave}: HP={enemy.maxHP}, ATK={enemy.attackPower}");
     }
     
     // Display wave information for debugging and player awareness
@@ -1110,5 +1127,176 @@ public class CombatManager : MonoBehaviour
                 Debug.Log($"[CombatManager] Enemy {enemy.name} is at position: {enemy.transform.position}");
             }
         }
+    }
+
+    void Update()
+    {
+        // The GridClickHandler now handles input during preview state
+        // No need for HandleMinionRepositioning() here anymore
+    }
+
+    public void SelectMinionForRepositioning(int previewIndex)
+    {
+        if (selectedMinionForRepositioning == previewIndex)
+        {
+            // Deselect if clicking the same minion again
+            DeselectMinion();
+            return;
+        }
+
+        DeselectMinion(); // Deselect any previously selected indicator
+
+        selectedMinionForRepositioning = previewIndex;
+        
+        // Update visual feedback through click handler
+        if (previewIndex < previewIndicators.Count)
+        {
+            PreviewUnitClickHandler clickHandler = previewIndicators[previewIndex].GetComponent<PreviewUnitClickHandler>();
+            if (clickHandler != null)
+            {
+                clickHandler.SetSelected(true);
+            }
+        }
+        
+        Debug.Log($"[CombatManager] Selected minion at index {previewIndex} for repositioning.");
+    }
+
+    private void HandleMinionRepositioning()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("[CombatManager] Left-click detected for repositioning.");
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Debug.Log($"[CombatManager] Raycast hit: {hit.collider.gameObject.name}");
+                // Check if we clicked on another minion preview
+                PreviewUnitClickHandler clickedUnit = hit.collider.GetComponent<PreviewUnitClickHandler>();
+                if (clickedUnit != null)
+                {
+                    SelectMinionForRepositioning(clickedUnit.previewIndex);
+                    return;
+                }
+
+                // We clicked somewhere on the grid, attempt to move
+                Vector2Int gridPos = gridSpawnManager.WorldToGridPosition(hit.point);
+
+                if (gridSpawnManager.grid[gridPos.x, gridPos.y].zone == GridSpawnManager.GridZone.PlayerZone &&
+                    !IsCellOccupiedByOtherMinion(gridPos, selectedMinionForRepositioning))
+                {
+                    // Move the minion
+                    Vector3 newPosition = gridSpawnManager.grid[gridPos.x, gridPos.y].worldPosition;
+                    previewMinionPositions[selectedMinionForRepositioning] = newPosition;
+                    previewIndicators[selectedMinionForRepositioning].transform.position = newPosition;
+
+                    Debug.Log($"[CombatManager] Moved minion {selectedMinionForRepositioning} to grid cell {gridPos.x},{gridPos.y}.");
+
+                    // Deselect after moving
+                    DeselectMinion();
+                }
+                else
+                {
+                    Debug.Log($"[CombatManager] Invalid move location: cell {gridPos.x},{gridPos.y}.");
+                }
+            }
+            else
+            {
+                Debug.Log("[CombatManager] Raycast did not hit any object.");
+            }
+        }
+
+        if (Input.GetMouseButtonDown(1)) // Right-click to cancel
+        {
+            DeselectMinion();
+        }
+    }
+
+    public bool IsCellOccupiedByOtherMinion(Vector2Int gridPos, int requestingMinionIndex)
+    {
+        for (int i = 0; i < previewMinionPositions.Count; i++)
+        {
+            if (i == requestingMinionIndex) continue; // Don't check against self
+
+            Vector2Int otherMinionGridPos = gridSpawnManager.WorldToGridPosition(previewMinionPositions[i]);
+            if (otherMinionGridPos == gridPos)
+            {
+                return true; // Cell is occupied by another minion
+            }
+        }
+        return false;
+    }
+
+    private void HighlightSelectedIndicator(GameObject indicator)
+    {
+        var renderer = indicator.GetComponentInChildren<Renderer>();
+        if (renderer != null && selectedIndicatorMaterial != null)
+        {
+            originalIndicatorMaterials = renderer.materials;
+            renderer.material = selectedIndicatorMaterial;
+        }
+    }
+
+    public void DeselectMinion()
+    {
+        if (selectedMinionForRepositioning != -1)
+        {
+            // Update visual feedback through click handler
+            if (selectedMinionForRepositioning < previewIndicators.Count)
+            {
+                PreviewUnitClickHandler clickHandler = previewIndicators[selectedMinionForRepositioning].GetComponent<PreviewUnitClickHandler>();
+                if (clickHandler != null)
+                {
+                    clickHandler.SetSelected(false);
+                }
+            }
+            
+            selectedMinionForRepositioning = -1;
+            Debug.Log("[CombatManager] Deselected minion");
+        }
+    }
+    
+    public void MoveMinionToPosition(Vector2Int gridPos)
+    {
+        if (selectedMinionForRepositioning != -1)
+        {
+            Vector3 newPosition = gridSpawnManager.grid[gridPos.x, gridPos.y].worldPosition;
+            previewMinionPositions[selectedMinionForRepositioning] = newPosition;
+            previewIndicators[selectedMinionForRepositioning].transform.position = newPosition;
+            
+            Debug.Log($"[CombatManager] Moved minion {selectedMinionForRepositioning + 1} to grid position {gridPos}");
+            
+            DeselectMinion();
+        }
+    }
+    
+    void AddMinionNumberLabel(GameObject minionIndicator, int minionNumber)
+    {
+        // Use reliable 3D TextMesh - always works!
+        GameObject textObj = new GameObject($"Number_{minionNumber}");
+        textObj.transform.SetParent(minionIndicator.transform);
+        
+        // Position it above the minion  
+        textObj.transform.localPosition = new Vector3(0, 0.5f, -0.1f);
+        textObj.transform.localScale = Vector3.one * 0.5f;
+        
+        // Add 3D TextMesh component
+        TextMesh textMesh = textObj.AddComponent<TextMesh>();
+        textMesh.text = minionNumber.ToString();
+        textMesh.fontSize = 20;
+        textMesh.color = Color.white;
+        textMesh.fontStyle = FontStyle.Bold;
+        textMesh.alignment = TextAlignment.Center;
+        textMesh.anchor = TextAnchor.MiddleCenter;
+        
+        // Ensure it renders properly
+        MeshRenderer meshRenderer = textObj.GetComponent<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+            // Use default material that always works
+            meshRenderer.material = Resources.GetBuiltinResource<Material>("Default-Material.mat");
+            meshRenderer.material.color = Color.white;
+        }
+        
+        Debug.Log($"[CombatManager] Added 3D text number label '{minionNumber}' to minion indicator");
     }
 }

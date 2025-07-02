@@ -103,10 +103,10 @@ public class Minion
     
     public void CalculateStats()
     {
-        // Start with base stats
-        totalHP = baseData.baseHP;
-        totalAttack = baseData.baseAttack;
-        totalDefense = 0; // No base defense
+        // Start with base stats and add a global survivability bonus
+        totalHP = baseData.baseHP + 10; // GLOBAL BUFF: +10 Base HP
+        totalAttack = baseData.baseAttack + 2; // GLOBAL BUFF: +2 Base Attack
+        totalDefense = 5; // No base defense
         
         // Reset calculated stats to base values
         totalAttackSpeed = 1.0f;

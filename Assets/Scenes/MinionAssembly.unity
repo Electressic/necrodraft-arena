@@ -3495,6 +3495,10 @@ MonoBehaviour:
   createMinionButton: {fileID: 1578034076}
   partIconPrefab: {fileID: 2528302437963916541, guid: 01584890321eda747b500129f1eb3d2d, type: 3}
   defaultMinionData: {fileID: 11400000, guid: bc39f714115294448ad138cc0c6bd5d4, type: 2}
+  vampiricClaws: {fileID: 11400000, guid: f267ecd6aa507254ba234e5d8c405648, type: 2}
+  vampiricFangs: {fileID: 11400000, guid: 4aae9e5c00073d84f9ae9381ef46e6c9, type: 2}
+  berserkerGreaves: {fileID: 11400000, guid: 83d03f179cd71d648a9f1255a6f85181, type: 2}
+  berserkerSpine: {fileID: 11400000, guid: ea67437a4f78fd44aa9367ff1e145212, type: 2}
   enableDebugLogging: 1
   headSprite: {fileID: -5156993582514690110, guid: 6db4750c7370e894a80f9cc75166394b, type: 3}
   torsoSprite: {fileID: -6199720543617963891, guid: 15c7b625208d6394d840fde4e455f927, type: 3}

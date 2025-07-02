@@ -139,8 +139,8 @@ public class ClassSelectionManager : MonoBehaviour
         switch (className)
         {
             case "Bone Weaver": return "Master of Bones";
-            case "Flesh Sculptor": return "Lord of Decay";
-            case "Soul Binder": return "Spirit Guide";
+            case "Flesh Sculptor": return "Lord of Decay (Coming Soon)";
+            case "Soul Binder": return "Spirit Guide (Coming Soon)";
             default: return "Necromancer";
         }
     }

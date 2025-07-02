@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
+  m_Name: VampiricClaws
+  m_EditorClassIdentifier: 
+  partName: Vampiric Claws
+  icon: {fileID: 4278120580491971516, guid: 587baf55405f03e45beabf4461835f06, type: 3}
+  type: 2
+  theme: 0
+  rarity: 3
+  stats:
+    health: 0.1
+    attack: 0
+    defense: 0
+    attackSpeed: 0
+    critChance: 0.1
+    critDamage: 0
+    moveSpeed: 0.099999994
+    range: 0.01
+  specialAbility: 8
+  abilityValue: 0
+  description: Drains life from your foes with every strike.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

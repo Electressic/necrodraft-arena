@@ -7,7 +7,7 @@ public class GridSpawnManager : MonoBehaviour
     [Header("Grid Configuration")]
     public int gridWidth = 8;
     public int gridHeight = 6;
-    public float cellSize = 1.0f;
+    public float cellSize = 1.5f; // Wider spacing between grid cells
     public Vector2 gridOffset = Vector2.zero;
     
     [Header("Zone Configuration")]
@@ -236,6 +236,13 @@ public class GridSpawnManager : MonoBehaviour
         return Vector3.zero; // Grid is full
     }
     
+    public Vector2Int WorldToGridPosition(Vector3 worldPosition)
+    {
+        int x = Mathf.FloorToInt((worldPosition.x - gridOffset.x) / cellSize);
+        int y = Mathf.FloorToInt((worldPosition.y - gridOffset.y) / cellSize);
+        return new Vector2Int(x, y);
+    }
+    
     public bool SetOccupied(Vector3 worldPosition, GameObject occupant)
     {
         Vector2Int gridPos = WorldToGridPosition(worldPosition);
@@ -263,13 +270,6 @@ public class GridSpawnManager : MonoBehaviour
         if (IsValidGridPosition(x, y))
             return grid[x, y].isOccupied;
         return true; // Consider invalid positions as occupied
-    }
-    
-    Vector2Int WorldToGridPosition(Vector3 worldPosition)
-    {
-        int x = Mathf.RoundToInt((worldPosition.x - gridOffset.x) / cellSize);
-        int y = Mathf.RoundToInt((worldPosition.y - gridOffset.y) / cellSize);
-        return new Vector2Int(x, y);
     }
     
     bool IsValidGridPosition(int x, int y)

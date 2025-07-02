@@ -31,6 +31,12 @@ public class MinionAssemblyManager : MonoBehaviour
     [Header("Minion Data")]
     public MinionData defaultMinionData;
     
+    [Header("Bone Weaver Bonus Parts")]
+    public PartData vampiricClaws;
+    public PartData vampiricFangs;
+    public PartData berserkerGreaves;
+    public PartData berserkerSpine;
+    
     [Header("Debug")]
     public bool enableDebugLogging = true;
     
@@ -217,8 +223,16 @@ public class MinionAssemblyManager : MonoBehaviour
             Minion newMinion = new Minion(selectedClass.startingMinionType);
             newMinion.minionName = startingName; // Set name after creation
             
-            // Auto-equip the class starting parts
-            AutoEquipStartingParts(newMinion, selectedClass);
+            // SPECIAL: Check for Bone Weaver to give bonus starter set
+            if (selectedClass.className == "Bone Weaver")
+            {
+                AutoEquipBoneWeaverBonusParts(newMinion);
+            }
+            else
+            {
+                // Auto-equip the class starting parts
+                AutoEquipStartingParts(newMinion, selectedClass);
+            }
             
             // Add to roster
             MinionManager.AddMinion(newMinion);
@@ -234,6 +248,31 @@ public class MinionAssemblyManager : MonoBehaviour
         }
     }
     
+    void AutoEquipBoneWeaverBonusParts(Minion minion)
+    {
+        if (enableDebugLogging)
+            Debug.Log("[MinionAssemblyManager] Equipping special Bone Weaver starter set.");
+
+        PartData[] bonusParts = { vampiricFangs, berserkerSpine, vampiricClaws, berserkerGreaves };
+        foreach (PartData part in bonusParts)
+        {
+            if (part != null)
+            {
+                if (minion.GetEquippedPart(part.type) == null)
+                {
+                    minion.EquipPart(part);
+                    if (enableDebugLogging)
+                        Debug.Log($"[MinionAssemblyManager] Bone Weaver equipped bonus part: {part.partName}");
+                }
+            }
+            else
+            {
+                if (enableDebugLogging)
+                    Debug.LogWarning($"[MinionAssemblyManager] A Bone Weaver bonus part is not assigned in the Inspector!");
+            }
+        }
+    }
+
     void AutoEquipStartingParts(Minion minion, NecromancerClass necroClass)
     {
         if (necroClass.startingParts == null) return;
@@ -1609,7 +1648,7 @@ public class MinionAssemblyManager : MonoBehaviour
             
             tooltipContent += $"\n\n<b>Availability:</b>";
             tooltipContent += $"\n<color=white>Total: {totalCount}</color>";
-            tooltipContent += $"\n<color=gray>Equipped: {equippedCount}</color>";
+            tooltipContent += $"\n<color=white>Equipped: {equippedCount}</color>";
             tooltipContent += $"\n<color={(availableCount > 0 ? "green" : "red")}>Available: {availableCount}</color>";
             
             inventoryTooltipText.text = tooltipContent;
