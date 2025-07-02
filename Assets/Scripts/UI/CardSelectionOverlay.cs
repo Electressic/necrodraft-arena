@@ -17,6 +17,7 @@ public class CardSelectionOverlay : MonoBehaviour
     public Image backgroundDim;
     
     [Header("Card Background Sprites")]
+    public Image[] cardIcons = new Image[3]; 
     public Sprite commonCardSprite;
     public Sprite rareCardSprite;
     public Sprite epicCardSprite;
@@ -112,11 +113,21 @@ public class CardSelectionOverlay : MonoBehaviour
     
     public void ShowOverlay(string title = "Choose a Body Part", string instructions = "Select one card to add to your collection")
     {
-        if (isAnimating) return;
+        if (enableDebugLogging)
+            Debug.Log($"[CardSelectionOverlay] 🎯 ShowOverlay() called! Title: '{title}', IsAnimating: {isAnimating}, IsHidden: {isTemporarilyHidden}");
+        
+        if (isAnimating) 
+        {
+            if (enableDebugLogging)
+                Debug.Log("[CardSelectionOverlay] ✗ Cannot show - currently animating");
+            return;
+        }
         
         // Check if resuming from temporary hide
         if (isTemporarilyHidden)
         {
+            if (enableDebugLogging)
+                Debug.Log("[CardSelectionOverlay] ↗️ Resuming from temporary hide");
             ResumeOverlay();
             return;
         }
@@ -140,7 +151,7 @@ public class CardSelectionOverlay : MonoBehaviour
         StartCoroutine(FadeInOverlay());
         
         if (enableDebugLogging)
-            Debug.Log("[CardSelectionOverlay] Showing overlay");
+            Debug.Log("[CardSelectionOverlay] ✓ Starting fade-in animation");
     }
     
     // New method for debug testing - shows overlay with specific cards
@@ -347,10 +358,10 @@ public class CardSelectionOverlay : MonoBehaviour
     {
         if (cardIndex < 0 || cardIndex >= cardTexts.Length || currentCards[cardIndex] == null)
             return;
-            
+
         PartData part = currentCards[cardIndex];
-        
-        // Set the card background sprite directly on the button's Image component
+
+        // Set the card background sprite
         Image cardImage = cardButtons[cardIndex].GetComponent<Image>();
         if (cardImage != null)
         {
@@ -360,70 +371,71 @@ public class CardSelectionOverlay : MonoBehaviour
                 cardImage.sprite = spriteToUse;
             }
         }
-        
-        // Get rarity color for highlighting
-        Color rarityColor = part.GetRarityColor();
-        
-        // Use the new stats system instead of legacy hpBonus/attackBonus
-        string statsText = "";
-        if (part.stats.HasAnyStats())
+
+        // Set the card icon if available
+        if (cardIcons != null && cardIndex < cardIcons.Length && cardIcons[cardIndex] != null)
         {
-            // Build stats display with better formatting
-            List<string> statsList = new List<string>();
-            if (part.stats.health > 0) statsList.Add($"<color=green>HP:</color> +{part.stats.health}");
-            if (part.stats.attack > 0) statsList.Add($"<color=red>ATK:</color> +{part.stats.attack}");
-            if (part.stats.defense > 0) statsList.Add($"<color=orange>DEF:</color> +{part.stats.defense}");
-            if (part.stats.attackSpeed > 0) statsList.Add($"<color=yellow>AS:</color> +{(part.stats.attackSpeed*100):F0}%");
-            if (part.stats.critChance > 0) statsList.Add($"<color=yellow>CRIT:</color> +{(part.stats.critChance*100):F0}%");
-            if (part.stats.critDamage > 0) statsList.Add($"<color=yellow>CD:</color> +{(part.stats.critDamage*100):F0}%");
-            if (part.stats.moveSpeed > 0) statsList.Add($"<color=#00FFFF>SPD:</color> +{(part.stats.moveSpeed*100):F0}%");
-            if (part.stats.range > 0) statsList.Add($"<color=#FF00FF>RNG:</color> +{(part.stats.range*100):F0}%");
-            
-            // Format based on number of stats for better readability
-            if (statsList.Count <= 2)
+            if (part.icon != null)
             {
-                // Few stats: keep on one line
-                statsText = string.Join("  ", statsList);
-            }
-            else if (statsList.Count <= 4)
-            {
-                // Medium stats: split into two lines
-                int half = statsList.Count / 2;
-                string firstLine = string.Join("  ", statsList.GetRange(0, half));
-                string secondLine = string.Join("  ", statsList.GetRange(half, statsList.Count - half));
-                statsText = $"{firstLine}\n{secondLine}";
+                cardIcons[cardIndex].sprite = part.icon;
+                cardIcons[cardIndex].color = Color.white;
             }
             else
             {
-                // Many stats: use multiple lines
-                statsText = string.Join("  ", statsList.GetRange(0, 3)) + "\n" + 
-                           string.Join("  ", statsList.GetRange(3, statsList.Count - 3));
+                // Use a default icon or hide if no icon available
+                cardIcons[cardIndex].color = Color.clear;
+            }
+        }
+
+        // Get rarity color for highlighting
+        Color rarityColor = part.GetRarityColor();
+
+        // Build comprehensive stats display using new stats system
+        string statsText = "";
+        if (part.stats.HasAnyStats())
+        {
+            List<string> statsList = new List<string>();
+            if (part.stats.health > 0) statsList.Add($"<color=green>HP: +{part.stats.health*100:F0}%</color>");
+            if (part.stats.attack > 0) statsList.Add($"<color=red>ATK: +{part.stats.attack*100:F0}%</color>");
+            if (part.stats.defense > 0) statsList.Add($"<color=orange>DEF: +{part.stats.defense*100:F0}%</color>");
+            if (part.stats.attackSpeed > 0) statsList.Add($"<color=yellow>AS: +{(part.stats.attackSpeed*100):F0}%</color>");
+            if (part.stats.critChance > 0) statsList.Add($"<color=yellow>CRIT: +{(part.stats.critChance*100):F0}%</color>");
+            if (part.stats.moveSpeed > 0) statsList.Add($"<color=#00FFFF>SPD: +{(part.stats.moveSpeed*100):F0}%</color>");
+
+            // Format stats in 2 columns for better readability
+            if (statsList.Count <= 3)
+            {
+                statsText = string.Join("\n", statsList);
+            }
+            else
+            {
+                int half = (statsList.Count + 1) / 2;
+                string leftColumn = string.Join("\n", statsList.GetRange(0, half));
+                string rightColumn = string.Join("\n", statsList.GetRange(half, statsList.Count - half));
+                statsText = $"{leftColumn}     {rightColumn}";
             }
         }
         else
         {
-            // Fallback to legacy system if new stats are empty
-            statsText = $"<color=green>HP:</color> +{part.GetHPBonus()}  <color=red>ATK:</color> +{part.GetAttackBonus()}";
+            // Fallback to legacy system
+            statsText = $"<color=green>HP: +{part.GetHPBonus()}</color>\n<color=red>ATK: +{part.GetAttackBonus()}</color>";
         }
-        
-        // Format card text display with rarity and abilities
-        string cardText = $"<size=18><b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{part.partName}</color></b></size>\n" +
-                         $"<size=12><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()}]</color></size>\n\n" +
-                         $"<color=yellow>Type:</color> {part.type}\n\n" +
-                         $"{statsText}\n\n";
-        
-        // Add special ability if it exists (smaller text)
+
+        // Create cleaner card text layout with sections
+        string cardText = $"<b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{part.partName}</color></b>\n" +
+                         $"<size=10><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{part.GetRarityText()} {part.type}]</color></size>\n\n" +
+                         $"{statsText}\n";
+
+        // Add special ability if it exists
         string abilityDesc = part.GetAbilityDescription();
         if (!string.IsNullOrEmpty(abilityDesc))
         {
-            cardText += $"<size=10><color=orange><b>{abilityDesc}</b></color></size>\n\n";
+            cardText += $"\n<size=9><color=orange><b>{abilityDesc}</b></color></size>";
         }
-        
-        cardText += $"<size=10><i>{part.description}</i></size>";
-        
+
         cardTexts[cardIndex].text = cardText;
-        
-        // Reset button colors to be more subtle since we're using background sprites
+
+        // Reset button colors
         ColorBlock colors = cardButtons[cardIndex].colors;
         colors.normalColor = Color.white;
         colors.highlightedColor = new Color(1.1f, 1.1f, 1.1f, 1f);

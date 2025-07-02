@@ -199,7 +199,7 @@ public class Unit : MonoBehaviour
             healthBarCanvas.SetActive(false);
         
         if (spriteRenderer != null)
-            spriteRenderer.color = Color.gray;
+            spriteRenderer.color = new Color32(128, 128, 128, 255); // Gray #808080
         
         Invoke(nameof(DestroyUnit), 1f);
     }

@@ -30,6 +30,10 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
     public UnityEngine.UI.Slider experienceBar;     // NEW: XP progress bar
     public TMPro.TextMeshProUGUI experienceText;    // NEW: XP numbers (optional)
     
+    [Header("Tooltip System")]
+    public GameObject tooltipPanel;  // Panel to show detailed stats on hover
+    public TMPro.TextMeshProUGUI tooltipText;  // Text component for tooltip
+    
     // Private fields
     private Minion representedMinion;
     private MinionAssemblyManager manager;
@@ -73,7 +77,7 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
             nicknameInput.onEndEdit.AddListener(OnNicknameChanged);
         }
         
-        // Setup slot button listeners (for unequipping)
+        // Setup slot button listeners (for unequipping) AND hover tooltips
         foreach (var slot in slotButtons)
         {
             PartData.PartType partType = slot.Key;
@@ -82,8 +86,29 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
             if (button != null)
             {
                 button.onClick.AddListener(() => OnSlotClicked(partType));
+                
+                // Add hover event triggers for tooltips
+                var trigger = button.gameObject.GetComponent<UnityEngine.EventSystems.EventTrigger>();
+                if (trigger == null)
+                    trigger = button.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+                
+                // Add pointer enter event
+                var pointerEnter = new UnityEngine.EventSystems.EventTrigger.Entry();
+                pointerEnter.eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter;
+                pointerEnter.callback.AddListener((eventData) => ShowTooltip(partType));
+                trigger.triggers.Add(pointerEnter);
+                
+                // Add pointer exit event
+                var pointerExit = new UnityEngine.EventSystems.EventTrigger.Entry();
+                pointerExit.eventID = UnityEngine.EventSystems.EventTriggerType.PointerExit;
+                pointerExit.callback.AddListener((eventData) => HideTooltip());
+                trigger.triggers.Add(pointerExit);
             }
         }
+        
+        // Hide tooltip initially
+        if (tooltipPanel != null)
+            tooltipPanel.SetActive(false);
         
         // Initial refresh
         RefreshDisplay();
@@ -210,7 +235,7 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
                 }
                 else
                 {
-                    colors.normalColor = Color.gray; // Empty
+                    colors.normalColor = new Color32(128, 128, 128, 255); // Empty - Gray #808080
                 }
                 button.colors = colors;
             }
@@ -274,16 +299,9 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
             // Get rarity color
             Color rarityColor = equippedPart.GetRarityColor();
             
-            // Build simplified text with rarity and abilities
-            string slotDisplayText = $"<b>{partType}</b>: <color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{equippedPart.partName}</color>";
+            // Show MINIMAL text - just part name and rarity
+            string slotDisplayText = $"<b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{equippedPart.partName}</color></b>";
             slotDisplayText += $"\n<size=8><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{equippedPart.GetRarityText()}]</color></size>";
-            slotDisplayText += $"\n<size=9>+{equippedPart.hpBonus} HP | +{equippedPart.attackBonus} ATK</size>";
-            
-            // Add ability name only (not full description) if it exists
-            if (equippedPart.specialAbility != PartData.SpecialAbility.None)
-            {
-                slotDisplayText += $"\n<size=8><color=orange><b>{equippedPart.specialAbility}</b></color></size>";
-            }
             
             slotText.text = slotDisplayText;
             slotText.color = Color.black;
@@ -298,12 +316,12 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
         }
         else
         {
-            slotText.text = $"<b>{partType}</b>\n<color=grey>Empty Slot</color>";
-            slotText.color = Color.gray;
+            slotText.text = $"<b>{partType}</b>\n<color=grey>Empty</color>";
+            slotText.color = new Color32(128, 128, 128, 255); // Gray #808080
             
             // Change button color to indicate it's empty
             ColorBlock colors = slotButton.colors;
-            colors.normalColor = Color.gray;
+            colors.normalColor = new Color32(128, 128, 128, 255); // Gray #808080
             colors.highlightedColor = Color.white;
             slotButton.colors = colors;
         }
@@ -327,6 +345,58 @@ public class MinionListEntryUI : MonoBehaviour, IDropHandler, IPointerEnterHandl
         if (manager != null)
         {
             manager.OnMinionSlotClicked(representedMinion, partType);
+        }
+    }
+    
+    void ShowTooltip(PartData.PartType partType)
+    {
+        if (tooltipPanel != null && tooltipText != null && representedMinion != null)
+        {
+            PartData equippedPart = representedMinion.GetEquippedPart(partType);
+            if (equippedPart != null)
+            {
+                tooltipPanel.SetActive(true);
+                
+                // Create detailed tooltip text
+                Color rarityColor = equippedPart.GetRarityColor();
+                string tooltipContent = $"<b><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{equippedPart.partName}</color></b>";
+                tooltipContent += $"\n<size=10><color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>[{equippedPart.GetRarityText()}]</color></size>";
+                
+                // Show detailed stats
+                if (equippedPart.stats.HasAnyStats())
+                {
+                    List<string> statsList = new List<string>();
+                    if (equippedPart.stats.health > 0) statsList.Add($"<color=green>+{equippedPart.stats.health*100:F0}% Health</color>");
+                    if (equippedPart.stats.attack > 0) statsList.Add($"<color=red>+{equippedPart.stats.attack*100:F0}% Attack</color>");
+                    if (equippedPart.stats.defense > 0) statsList.Add($"<color=orange>+{equippedPart.stats.defense*100:F0}% Defense</color>");
+                    if (equippedPart.stats.attackSpeed > 0) statsList.Add($"<color=yellow>+{equippedPart.stats.attackSpeed*100:F0}% Attack Speed</color>");
+                    if (equippedPart.stats.critChance > 0) statsList.Add($"<color=yellow>+{equippedPart.stats.critChance*100:F0}% Crit Chance</color>");
+                    if (equippedPart.stats.moveSpeed > 0) statsList.Add($"<color=#00FFFF>+{equippedPart.stats.moveSpeed*100:F0}% Move Speed</color>");
+                    
+                    tooltipContent += $"\n\n<b>Stats:</b>\n{string.Join("\n", statsList)}";
+                }
+                else
+                {
+                    // Fallback to legacy system
+                    tooltipContent += $"\n\n<b>Stats:</b>\n<color=green>+{equippedPart.GetHPBonus()} HP</color>\n<color=red>+{equippedPart.GetAttackBonus()} Attack</color>";
+                }
+                
+                // Show ability if it exists
+                if (equippedPart.specialAbility != PartData.SpecialAbility.None)
+                {
+                    tooltipContent += $"\n\n<b><color=orange>Special Ability:</color></b>\n<color=orange>{equippedPart.specialAbility}</color>";
+                }
+                
+                tooltipText.text = tooltipContent;
+            }
+        }
+    }
+    
+    void HideTooltip()
+    {
+        if (tooltipPanel != null)
+        {
+            tooltipPanel.SetActive(false);
         }
     }
 }

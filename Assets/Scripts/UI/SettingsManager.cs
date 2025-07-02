@@ -214,7 +214,7 @@ public class SettingsManager : MonoBehaviour
             
             // Visual feedback like Continue button
             var colors = applyButton.colors;
-            colors.normalColor = hasChanges ? Color.white : Color.gray;
+            colors.normalColor = hasChanges ? Color.white : new Color32(128, 128, 128, 255); // Gray #808080
             applyButton.colors = colors;
             
             Debug.Log($"Apply button state: {(hasChanges ? "ENABLED" : "DISABLED")} - Has changes: {hasChanges}");

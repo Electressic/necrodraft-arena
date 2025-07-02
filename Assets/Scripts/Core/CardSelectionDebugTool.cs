@@ -59,28 +59,47 @@ public class CardSelectionDebugTool : MonoBehaviour
         rareParts = new List<PartData>();
         epicParts = new List<PartData>();
         
-        // Generate sample parts of each rarity for testing
+        // Generate sample parts of each rarity for testing with proper wave matching
         for (int i = 0; i < 5; i++) // 5 of each rarity for testing variety
         {
-            PartData commonPart = DynamicPartGenerator.GenerateRandomPart(1); // Wave 1 = more common
-            commonPart.rarity = PartData.PartRarity.Common; // Force rarity for testing
+            // Common parts - use wave 1-3 for proper common generation
+            PartData commonPart = DynamicPartGenerator.GenerateRandomPart(Random.Range(1, 4)); 
+            commonPart.rarity = PartData.PartRarity.Common;
+            // Regenerate stats to match common rarity properly
+            commonPart.stats = PartStatsGenerator.Generate(commonPart.theme, PartData.PartRarity.Common, commonPart.type);
+            commonPart.description = GenerateEnhancedDescription(commonPart);
             commonParts.Add(commonPart);
             allParts.Add(commonPart);
             
-            PartData rarePart = DynamicPartGenerator.GenerateRandomPart(3); // Wave 3 = more rare
-            rarePart.rarity = PartData.PartRarity.Rare; // Force rarity for testing
+            // Rare parts - use wave 8-12 for proper rare generation
+            PartData rarePart = DynamicPartGenerator.GenerateRandomPart(Random.Range(8, 13)); 
+            rarePart.rarity = PartData.PartRarity.Rare;
+            // Regenerate stats to match rare rarity properly
+            rarePart.stats = PartStatsGenerator.Generate(rarePart.theme, PartData.PartRarity.Rare, rarePart.type);
+            rarePart.description = GenerateEnhancedDescription(rarePart);
             rareParts.Add(rarePart);
             allParts.Add(rarePart);
             
-            PartData epicPart = DynamicPartGenerator.GenerateRandomPart(5); // Wave 5 = more epic
-            epicPart.rarity = PartData.PartRarity.Epic; // Force rarity for testing  
+            // Epic parts - use wave 15+ for proper epic generation
+            PartData epicPart = DynamicPartGenerator.GenerateRandomPart(Random.Range(15, 20)); 
+            epicPart.rarity = PartData.PartRarity.Epic;
+            // Regenerate stats to match epic rarity properly
+            epicPart.stats = PartStatsGenerator.Generate(epicPart.theme, PartData.PartRarity.Epic, epicPart.type);
+            epicPart.description = GenerateEnhancedDescription(epicPart);
             epicParts.Add(epicPart);
             allParts.Add(epicPart);
         }
         
         if (enableDebugLogging)
         {
-            Debug.Log("[CardSelectionDebugTool] Generated dynamic test parts for debugging");
+            Debug.Log("[CardSelectionDebugTool] Generated dynamic test parts with proper stats for debugging");
+            
+            // Log some epic part examples
+            var epicExample = epicParts.FirstOrDefault();
+            if (epicExample != null)
+            {
+                Debug.Log($"[CardSelectionDebugTool] Epic example: {epicExample.partName} - HP: {epicExample.stats.health*100:F0}%, ATK: {epicExample.stats.attack*100:F0}%");
+            }
         }
     }
     
@@ -215,9 +234,16 @@ public class CardSelectionDebugTool : MonoBehaviour
         
         for (int i = 0; i < 3; i++)
         {
-            // Generate new Epic part with wave 19 (forces Epic rarity)
-            PartData newEpicPart = DynamicPartGenerator.GenerateRandomPart(19);
-            newEpicPart.rarity = PartData.PartRarity.Epic; // Force Epic for testing
+            // Generate new Epic part with wave 18-19 (high epic waves)
+            PartData newEpicPart = DynamicPartGenerator.GenerateRandomPart(Random.Range(17, 20));
+            newEpicPart.rarity = PartData.PartRarity.Epic;
+            
+            // Ensure proper epic stats (regenerate with correct rarity)
+            newEpicPart.stats = PartStatsGenerator.Generate(newEpicPart.theme, PartData.PartRarity.Epic, newEpicPart.type);
+            
+            // Add enhanced description
+            newEpicPart.description = GenerateEnhancedDescription(newEpicPart);
+            
             newEpicParts.Add(newEpicPart);
             
             // Log the stats for debugging
@@ -226,6 +252,7 @@ public class CardSelectionDebugTool : MonoBehaviour
                 Debug.Log($"[CardSelectionDebugTool] Generated Epic Part {i+1}: {newEpicPart.partName}");
                 Debug.Log($"  Stats: {newEpicPart.stats.GetStatsText()}");
                 Debug.Log($"  Stat Count: {CountNonZeroStats(newEpicPart.stats)}");
+                Debug.Log($"  Has ability: {newEpicPart.specialAbility != PartData.SpecialAbility.None}");
             }
         }
         
@@ -298,6 +325,55 @@ public class CardSelectionDebugTool : MonoBehaviour
             GUI.Label(new Rect(20, 55, 280, 20), $"Common: {commonParts.Count} | Rare: {rareParts.Count} | Epic: {epicParts.Count}");
             GUI.Label(new Rect(20, 75, 280, 20), $"Press '{quickTestKey}' for quick random test");
             GUI.Label(new Rect(20, 95, 280, 20), "Use debug buttons to test specific rarities");
+        }
+    }
+    
+    private string GenerateEnhancedDescription(PartData part)
+    {
+        string[] themeDescriptions = part.theme switch
+        {
+            PartData.PartTheme.Skeleton => new[] { 
+                "Crafted from ancient bones, these parts offer speed and precision.",
+                "Bleached by time, these skeletal remains whisper of forgotten battles.",
+                "Light as air but deadly sharp, these bones remember how to fight.",
+                "Ancient calcium forged into unholy purpose.",
+                "The hollow echo of death given form."
+            },
+            PartData.PartTheme.Zombie => new[] { 
+                "Putrid flesh that refuses to die, offering resilience through decay.",
+                "Rotting meat that grows stronger through corruption.", 
+                "Festering tissue that regenerates from pure spite.",
+                "Undead flesh that feeds on violence.",
+                "Decaying matter animated by dark hunger."
+            },
+            PartData.PartTheme.Ghost => new[] { 
+                "Ethereal essence bound between worlds, shifting between solid and spirit.",
+                "Spectral matter that phases through reality itself.",
+                "Ghostly remnants of powerful souls seeking purpose.",
+                "Ectoplasmic energy given semi-solid form.",
+                "Spirit essence that defies natural law."
+            },
+            _ => new[] { "A mysterious undead component of unknown origin." }
+        };
+        
+        string rarityFlavor = part.rarity switch
+        {
+            PartData.PartRarity.Common => "A basic but reliable component.",
+            PartData.PartRarity.Uncommon => "Enhanced through dark rituals.",
+            PartData.PartRarity.Rare => "Infused with powerful necromantic energy.",
+            PartData.PartRarity.Epic => "Legendary artifact of immense power.",
+            _ => ""
+        };
+        
+        string baseDesc = themeDescriptions[Random.Range(0, themeDescriptions.Length)];
+        
+        if (part.specialAbility != PartData.SpecialAbility.None)
+        {
+            return $"{baseDesc} {rarityFlavor}";
+        }
+        else
+        {
+            return $"{baseDesc} {rarityFlavor}";
         }
     }
 } 
