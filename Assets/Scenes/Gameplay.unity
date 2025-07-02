@@ -218,6 +218,7 @@ RectTransform:
   - {fileID: 500966838}
   - {fileID: 975849988}
   - {fileID: 98828949}
+  - {fileID: 1043905579}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -493,7 +494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 348548461954d434ab20bb38d01ce3b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentWave: 1
   gameRunning: 1
   backToMenuButton: {fileID: 98828950}
   waveText: {fileID: 574683590}
@@ -1492,6 +1492,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1027677827}
   m_CullTransparentMesh: 1
+--- !u!1 &1043905577
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1043905579}
+  - component: {fileID: 1043905578}
+  m_Layer: 0
+  m_Name: GridSpawnManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1043905578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043905577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b10e2c247d6c00442b06292409412cc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridWidth: 8
+  gridHeight: 6
+  cellSize: 1
+  gridOffset: {x: -3.5, y: -2.5}
+  playerZoneWidth: 3
+  enemyZoneWidth: 3
+  showGrid: 1
+  gridColor: {r: 1, g: 1, b: 1, a: 1}
+  playerZoneColor: {r: 0, g: 0, b: 1, a: 1}
+  enemyZoneColor: {r: 1, g: 0, b: 0, a: 1}
+  neutralZoneColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  occupiedCellColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+--- !u!4 &1043905579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043905577}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 55613323}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1256398538
 GameObject:
   m_ObjectHideFlags: 0
@@ -1528,8 +1584,8 @@ Camera:
   m_GameObject: {fileID: 1256398538}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1962,6 +2018,7 @@ MonoBehaviour:
   - {fileID: 1325890360}
   - {fileID: 1433335460}
   - {fileID: 2133622420}
+  gridSpawnManager: {fileID: 1043905578}
   minionPrefab: {fileID: 5579702520279116776, guid: 2f43dd26126051b45973cfe9cacd19a4, type: 3}
   enemyPrefab: {fileID: 8065251901967925059, guid: 5bb9e55b6df16924196f69134c754419, type: 3}
   waveConfigs:
