@@ -1,0 +1,61 @@
+\chapter{Installation und Setup}
+\label{chap:installation}
+
+\section{Systemanforderungen}
+
+\begin{itemize}
+    \item \textbf{OS:} Windows 10 (64-bit) oder höher
+    \item \textbf{RAM:} 4 GB (empfohlen: 8 GB)
+    \item \textbf{Speicherplatz:} 150 MB
+    \item \textbf{Eingabe:} Maus und Tastatur
+\end{itemize}
+
+\section{Installation für Entwickler}
+
+\subsection{Voraussetzungen}
+\begin{enumerate}
+    \item \textbf{Unity Hub:} Download von \url{https://unity.com/download}
+    \item \textbf{Unity Editor:} Version 6000.1.4f1
+    \item \textbf{Git:} Optional für Versionskontrolle
+\end{enumerate}
+
+\subsection{Projekt Setup}
+\begin{enumerate}
+    \item Projektarchiv entpacken oder Repository klonen
+    \item Unity Hub öffnen → Add project from disk
+    \item \texttt{necrodraft-arena} Hauptordner auswählen
+    \item Erste Öffnung: Unity importiert Assets und Pakete (ca. 2-3 Minuten)
+\end{enumerate}
+
+\subsection{Dependencies}
+Das Projekt nutzt folgende Unity Packages:
+\begin{itemize}
+    \item Universal Render Pipeline (17.1.0)
+    \item 2D Animation (10.2.0)
+    \item Input System (1.14.0)
+    \item Visual Studio Editor (2.0.23)
+\end{itemize}
+
+\section{Installation für Spieler}
+
+\subsection{Windows Standalone}
+\begin{enumerate}
+    \item Release-Version herunterladen
+    \item ZIP-Archiv entpacken
+    \item \texttt{NecroDraftArena.exe} ausführen
+\end{enumerate}
+
+\section{Erste Schritte}
+
+\subsection{Für Entwickler}
+\begin{itemize}
+    \item \textbf{Projekt-Struktur:} \texttt{Assets/Scenes/} (Spielszenen), \texttt{Assets/Scripts/} (C\# Code), \texttt{Assets/ScriptableObjects/} (Part-Daten)
+    \item \textbf{Test:} MainMenu.unity öffnen → Play-Button → Spiel testen
+    \item \textbf{Build:} File → Build Settings → PC Standalone → Build and Run
+\end{itemize}
+
+\subsection{Für Spieler}
+\begin{itemize}
+    \item \textbf{Steuerung:} Maus für UI-Navigation, Drag \& Drop für Part-Assembly
+    \item \textbf{Spielstart:} Necromancer-Klasse wählen → Parts sammeln → Combat starten
+\end{itemize}

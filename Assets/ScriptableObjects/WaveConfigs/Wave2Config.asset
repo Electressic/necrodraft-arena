@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69224f7819d8909469c8ba2b5f229c9c, type: 3}
+  m_Name: Wave2Config
+  m_EditorClassIdentifier: 
+  waveName: Mixed Aussalt
+  waveNumber: 2
+  enemyGroups:
+  - enemyType: {fileID: 11400000, guid: e1f7b8a94c5d84d45aa23f7891456789, type: 2}
+    count: 1
+    spawnDelay: 0
+  - enemyType: {fileID: 11400000, guid: f2e8c9b04d6e95e56bb34f8902567890, type: 2}
+    count: 1
+    spawnDelay: 0.5
+  spawnDelay: 1
+  timeBetweenSpawns: 2
+  rewardParts: []

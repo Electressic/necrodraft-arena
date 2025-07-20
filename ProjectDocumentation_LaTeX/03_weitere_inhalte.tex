@@ -1,0 +1,75 @@
+\chapter{Weitere Inhalte}
+\label{chap:weitere_inhalte}
+
+\section{Thematischer Rahmen}
+
+NecroDraft Arena ist im Dark Fantasy Setting angesiedelt, in dem der Spieler als Nekromant auftritt. 
+Das Spiel verzichtet bewusst auf eine tiefe Narrative und konzentriert sich stattdessen auf mechanische Tiefe und strategisches Gameplay.
+
+\subsection{Setting}
+\begin{itemize}
+    \item \textbf{Genre:} Dark Fantasy mit strategischen Elementen
+    \item \textbf{Protagonisten:} Verschiedene Nekromantenklassen mit unterschiedlichen Spezialisierungen
+    \item \textbf{Zielkonflikt:} Arena basierte Kämpfe zwischen Untotenarmeen
+\end{itemize}
+
+\section{Visueller Stil und Farbschema}
+
+\subsection{Designprinzipien}
+\begin{itemize}
+    \item \textbf{Top-Down Perspektive:} Klassische strategische Übersicht
+    \item \textbf{Modularer Stil:} Körperteile sind visuell unterscheidbar und kombinierbar
+\end{itemize}
+
+\subsection{Farbpalette}
+\begin{itemize}
+    \item \textbf{Primärfarben:} Dunkle Grautöne und Blautöne für UI-Elemente
+    \item \textbf{Akzentfarben:} Verschiedene Farben für Part-Seltenheiten (Common, Rare, Epic)
+    \item \textbf{Thematische Farben:} Knochenweiß für Skeleton-Theme, Ätherisch-Blau für Ghost-Theme
+\end{itemize}
+
+\section{Audio-System}
+
+Das Spiel nutzt ein zentralisiertes Audio-System mit MusicManager und SettingsManager.
+
+\subsection{Komponenten}
+\begin{itemize}
+    \item \textbf{Hintergrundmusik:} Durchgehende Musik mit Fadeübergängen
+    \item \textbf{UI-Sounds:} Button-Clicks und Menü-Navigation
+    \item \textbf{Kampf-Audio:} Angriffs- und Schadenssounds (geplant)
+\end{itemize}
+
+\subsection{Audio-Einstellungen}
+\begin{itemize}
+    \item Separate Lautstärkeregelung für Master, Musik und Soundeffekte
+    \item Persistente Speicherung der Audioeinstellungen
+\end{itemize}
+
+\section{KI Verhalten}
+
+\subsection{Combat KI}
+Das Kampfsystem basiert auf positionsabhängigen Targeting-Regeln mit 6 verschiedenen Gegnertypen:
+
+\begin{itemize}
+    \item \textbf{Bruiser Enemies:} Greifen immer den Minion ganz links in der vorderen Reihe an
+    \item \textbf{Archer Enemies:} Zielen prioritär auf die hintere Reihe (weiteste Position)
+    \item \textbf{Assassin Enemies:} Attackieren den Minion mit der niedrigsten aktuellen HP (beliebige Position)
+    \item \textbf{Sniper Enemies:} Fokussieren den Minion mit dem höchsten Angriffswert
+    \item \textbf{Bomber Enemies:} Verursachen Flächenschaden auf alle benachbarten Positionen
+    \item \textbf{Guardian Enemies:} Blockieren Angriffe und schützen andere Gegner
+\end{itemize}
+
+\subsection{Positionssystem}
+\begin{itemize}
+    \item \textbf{Formation:} 2 Reihen mit je 3 Positionen (vorne/hinten)
+    \item \textbf{Vordere Reihe:} Erhält mehr Schaden, blockiert Zugang zur hinteren Reihe
+    \item \textbf{Hintere Reihe:} Geschützt, aber begrenzte Angriffsmöglichkeiten
+    \item \textbf{Strategische Platzierung:} Spieler muss Formation an Gegnertypen anpassen
+\end{itemize}
+
+\subsection{Balance Mechaniken}
+\begin{itemize}
+    \item Vorhersagbare Targeting-Muster ermöglichen strategische Planung
+    \item Deterministische Kämpfe für optimale Partoptimierung
+    \item Skalierung der Gegnerstärke basierend auf Wellenfortschritt
+\end{itemize}

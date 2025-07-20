@@ -1,0 +1,87 @@
+\chapter{Technische Dokumentation}
+\label{chap:technische_doku}
+
+\section{Game Engine und verwendete Tools}
+
+\subsection{Unity Engine}
+\begin{itemize}
+    \item \textbf{Version:} Unity 6+ mit 2D Core Template
+    \item \textbf{Render Pipeline:} Universal Render Pipeline (URP) 17.1.0
+    \item \textbf{Input System:} New Unity Input System 1.14.0
+    \item \textbf{Zielplattform:} PC Standalone (Windows 64-bit)
+\end{itemize}
+
+\subsection{Externe Pakete}
+\begin{itemize}
+    \item 2D Animation (10.2.0) für Sprite-Animationen
+    \item Visual Studio Editor (2.0.23) für Code-Integration
+\end{itemize}
+
+\section{Code Architektur}
+
+\subsection{Zentrale Managersysteme}
+Das Projekt folgt einem Manager-Pattern mit statischen Klassen für globale Systeme:
+
+\begin{itemize}
+    \item \textbf{GameData:} Verwaltet Spielfortschritt und Wellenstatus
+    \item \textbf{MinionManager:} Zentrale Minionroster Verwaltung
+    \item \textbf{PlayerInventory:} Part Inventar mit Eventsystem
+    \item \textbf{SaveSystem:} Serialisierung und Persistierung
+\end{itemize}
+
+\subsection{ScriptableObject Architektur}
+Datenklassen sind als ScriptableObjects implementiert für Design-Flexibilität:
+
+\begin{itemize}
+    \item \textbf{PartData:} Modulare Körperteil Definitionen
+    \item \textbf{NecromancerClass:} Spielerklassen mit Boni
+    \item \textbf{MinionData:} Basisminion Eigenschaften
+    \item \textbf{EnemyData:} Gegnerdefinitionen
+\end{itemize}
+
+\subsection{UI Architektur}
+Szenenbasierte UI Verwaltung mit Managerkomponenten:
+
+\begin{itemize}
+    \item \textbf{MinionAssemblyManager:} Partausrüstung und Minionverwaltung
+    \item \textbf{MainMenuManager:} Hauptmenü mit Save/Load Integration
+    \item \textbf{SettingsManager:} Audio- und Grafikeinstellungen
+    \item \textbf{ClassSelectionManager:} Klassenauswahl mit Preview
+\end{itemize}
+
+\section{Part System Implementation}
+
+\subsection{Stat Budget System}
+Parts nutzen ein punktebasiertes Stat-System:
+
+\begin{itemize}
+    \item \textbf{Stat-Kosten:} HP (1 Punkt), Attack (1 Punkt), Defense (2 Punkte), Kritische Chance (2 Punkte), Kritischer Schaden (1 Punkt), Rüstungsdurchdringung (3 Punkte) 
+    \item \textbf{Rarity Budget:} Common (8 Punkte), Uncommon (14 Punkte), Rare (22 Punkte), Epic (35 Punkte)
+    \item \textbf{Special Abilities:} Variable Kosten je nach Stärke (3-20 Punkte)
+    \item \textbf{Dynamische Generation:} Themenbasierte Statverteilung und Ability-Zuordnung
+\end{itemize}
+
+\subsection{Special Abilities Kosten}
+\begin{itemize}
+    \item \textbf{Guardian:} Taunt (4/6/8), Shield Wall (6/9/12), Damage Sharing (5/8/11)
+    \item \textbf{Assault:} Flanking (4/7/10), Focus Fire (5/8/11), Momentum (6/9/12)
+    \item \textbf{Marksman:} Range Attack (8/12/16), Overwatch (7/11/15), Hunter (5/8/11)
+    \item \textbf{Support:} Healing (3/5/7), Inspiration (4/6/8), Battle Cry (8/12/16)
+    \item \textbf{Trickster:} Mobility (10/15/20), Phase Step (12/18/24), Confuse (6/9/12)
+\end{itemize}
+
+\section{Build und Deployment}
+
+\subsection{Buildkonfiguration}
+\begin{itemize}
+    \item \textbf{Plattform:} PC Standalone (Windows x64)
+    \item \textbf{Kompression:} LZ4 für Balance zwischen Größe und Ladezeit
+    \item \textbf{Development Build:} Für Debug-Features in Prototyping
+\end{itemize}
+
+\subsection{Assetmanagement}
+\begin{itemize}
+    \item Resources-Ordner für dynamisch geladene ScriptableObjects
+    \item Addressables System für zukünftige Modularität
+    \item Texturekompression für optimale Dateigröße
+\end{itemize}

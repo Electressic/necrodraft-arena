@@ -1,0 +1,84 @@
+\chapter{Entwicklungsprozess}
+\label{chap:entwicklungsprozess}
+
+\section{Projektplanung und Meilensteine}
+
+\subsection{Entwicklungsansatz}
+Das Projekt folgte einem iterativen Prototyping-Ansatz mit Fokus auf Core-Mechaniken:
+
+\begin{enumerate}
+    \item \textbf{Phase 1:} Grundlegende Part System Implementierung
+    \item \textbf{Phase 2:} UI System und Minion Assembly Interface
+    \item \textbf{Phase 3:} Combatsystem und WWellenprogression
+    \item \textbf{Phase 4:} Savesystem und Gamebalance
+\end{enumerate}
+
+\subsection{Technologie Entscheidungen}
+\begin{itemize}
+    \item \textbf{Unity 6:} Für moderne 2D-Features und URP-Integration
+    \item \textbf{ScriptableObjects:} Für datengetriebenes Design ohne Codeänderungen
+    \item \textbf{Eventsystem:} Für lose gekoppelte Manager Kommunikation
+\end{itemize}
+
+\section{Herausforderungen und Lösungsansätze}
+
+\subsection{Partsystem Komplexität}
+\textbf{Problem:} Ursprünglich prozentbasierte Stats waren schwer zu balancieren und zu verstehen.
+
+\textbf{Lösung:} Migration zu punktebasiertem Budget-System mit klaren Kosten pro Statpunkt. 
+Zuerst waren auch Setboni geplant, durch das Mergesystem wurde dies doch gestrichen und durch ein Fähigkeitensystem ersetzt. 
+Die Fähigkeiten funktionieren auch über das punktebasiertem Budget-System, was die Balance vereinfacht.
+
+\subsection{UI Skalierung}
+\textbf{Problem:} Inkonsistente UI Darstellung auf verschiedenen Auflösungen. Elemente wie Buttons und Tooltips waren nicht skalierbar. 
+
+
+\textbf{Lösung:} SceneConsistencyManager für automatische Canvas-Skalierung und Resolution-Management.
+Außerdem wurde die generelle Auflösung auf Full-HD (1920x1080) festgelegt, um das Skalieren der UI zu vereinfachen. 
+Pixelbasierte UI-Elemente wurden mit verschiedenen Skalierungseinstellungen versehen (z.B. keine Kompression und kein Filter).
+
+\subsection{Savesystem Integration}
+\textbf{Problem:} Komplexe Objektreferenzen zwischen Minions, Parts und ScriptableObjects. Parts wurden nicht im Inventar gespeichert, sondern nur in der Scene. 
+Die Darstellung der Parts im Inventar war nicht persistent, was zu Inkonsistenzen führte.
+
+\textbf{Lösung:} Serialisierungsklassen mit Stringbasierten Referenzen statt direkter Objektlinks.
+
+\section{Designentscheidungen}
+
+\subsection{Automatisierte Kämpfe}
+\textbf{Entscheidung:} Vollständig automatisierte Combatphase ohne Spielereingriff.
+
+\textbf{Begründung:} Fokus auf strategische Partoptimierung statt Mikromanagement im Kampf.
+
+\subsection{Single Scene Assembly}
+\textbf{Entscheidung:} Alle Part Management Features in einer Szene kombiniert.
+
+\textbf{Begründung:} Reduziert Szenenwechsel und ermöglicht dem Spieler alle Features (bspw. Mergen der Parts oder Verwalten der Minions) auf einen Blick zu nutzen.
+
+\subsection{Managerpattern}
+\textbf{Entscheidung:} Zentrale statische Manager für globale Spielzustände.
+
+\textbf{Begründung:} Vereinfacht Datenzugriff zwischen Szenen und reduziert Singletonkomplexität.
+
+\section{Erreichte Ziele und Weiterentwicklung}
+
+\subsection{Erfolgreich implementiert}
+\begin{itemize}
+    \item Vollständig funktionsfähiges Partsystem mit speziellen Fähigkeiten
+    \item Intuitive Drag \& Drop UI für Part Assembly
+    \item Persistente Save/Load Funktionalität
+    \item Skalierbare Wellenprogression mit Freischaltung von Minions
+    \item Modulare Codebase für einfache Erweiterungen
+\end{itemize}
+
+\subsection{Verbesserungspotential}
+\begin{itemize}
+    \item \textbf{Performance:} Object Pooling für UI Elemente
+    \item \textbf{Content:} Weitere Klassen, mehr Partthemes, Ausreifung des Gameplayflows durch interaktive Entscheidungen nach jeder Welle (z.B. Pfadfindung)
+    \item \textbf{Polish:} Animationen und Visual Effects
+    \item \textbf{Balance:} Erweiterte Gameplaytests für Stattuning und Fähigkeitenbalancing
+\end{itemize}
+
+\subsection{Fazit}
+NecroDraft Arena demonstriert erfolgreich die Kernmechaniken eines modularen Deck-Building-Autobattlers. 
+Das fundierte technische Framework ermöglicht einfache Contenterweiterungen und bietet eine solide Basis für die Weiterentwicklung zum vollständigen Spiel.

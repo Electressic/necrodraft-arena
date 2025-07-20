@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860f94ad57aa1954f9ef08d8b462d96a, type: 3}
+  m_Name: BoneWeaver
+  m_EditorClassIdentifier: 
+  className: Bone Weaver
+  classIcon: {fileID: -2071131800922814628, guid: 7ff7218db92553e41a84df64bc9c32ec, type: 3}
+  classDescription: Masters of skeletal minions and bone-based parts.
+  specialtyKeyword: Bone
+  specialtyDescription: Bone parts are 50% more effective
+  startingMinionType: {fileID: 11400000, guid: bc39f714115294448ad138cc0c6bd5d4, type: 2}
+  startingParts:
+  - {fileID: 11400000, guid: 4538ea12275967b41a3f376f2ca94483, type: 2}
+  - {fileID: 11400000, guid: 252ebde95f4f4ae4a929be6e5216eae3, type: 2}
+  - {fileID: 11400000, guid: e33fd90dd18bc4149b8170a474b18370, type: 2}
+  - {fileID: 11400000, guid: 1e0021cfcc1284940bd16009abc2dcb7, type: 2}
+  hpBonusMultiplier: 1.5
+  attackBonusMultiplier: 1.5
+  guaranteedCardPool: []
+  bonusCardPicks: 1

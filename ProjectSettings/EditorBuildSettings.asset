@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: eb3216f0f690c4c4191a4b18e834b376
+  - enabled: 1
+    path: Assets/Scenes/ClassSelection.unity
+    guid: 251faf16e63c1334ca00d4c5c81a7f4f
+  - enabled: 1
+    path: Assets/Scenes/MinionAssembly.unity
+    guid: b37a3b04b598365458d3a767d92585b5
+  - enabled: 1
+    path: Assets/Scenes/Gameplay.unity
+    guid: 1e724e5c15017dc48adee5ccfce387e1
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: 2f33c6d5809e4f74d9c70950fb5f4db2
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  m_UseUCBPForAssetBundles: 0

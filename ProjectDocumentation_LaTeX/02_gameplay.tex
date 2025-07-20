@@ -1,0 +1,124 @@
+\chapter{Gameplay}
+\label{chap:gameplay}
+
+\section{Core Gameplay Loop}
+
+NecroDraft Arena folgt einem zyklischen Gameplay-Loop mit zwei Hauptphasen:
+
+\begin{enumerate}
+    \item \textbf{Assembly Phase} (1-3 Minuten): Strategische Optimierung der Minion-Armee
+    \item \textbf{Combat Phase} (30-90 Sekunden): Automatisierter Kampf zwischen den Armeen
+\end{enumerate}
+
+\subsection{Assembly Phase}
+Nach jedem Kampf erhält der Spieler automatisch 3 zufällige Parts ins Inventar. In dieser Phase können Parts:
+\begin{itemize}
+    \item An Minions in deren 4 Ausrüstungsslots (Head/Torso/Arms/Legs) ausgerüstet werden
+    \item Miteinander zu stärkeren Varianten gemergt werden (3 identische Parts → 1 höhere Seltenheit)
+    \item Aus dem Inventar gelöscht werden, um Platz zu schaffen
+\end{itemize}
+
+\subsection{Combat Phase}
+Vollständig automatisierte Kämpfe basieren auf:
+\begin{itemize}
+    \item \textbf{Einfache KI-Regeln:} Units greifen den Gegner ganz links an, ausgenommen sind Gegnertypen die unterschiedliche Positionen angreifen.
+    \item \textbf{Ability-Triggern:} Parts aktivieren spezielle Fähigkeiten basierend auf Kampfereignissen
+    \item \textbf{Siegbedingung:} Die letzte überlebende Armee gewinnt die Runde
+\end{itemize}
+
+\section{Part-System}
+
+\subsection{Ausrüstungsslots}
+Jeder Minion verfügt über 4 Ausrüstungsslots mit thematischen Schwerpunkten:
+\begin{itemize}
+    \item \textbf{Head:} Präzisions- und mentale Fähigkeiten (Kritische Chance, Rüstungsdurchdringung, Kritischer Schaden)
+    \item \textbf{Torso:} Defensive und Ausdauer-Fähigkeiten (Rüstung, Gesundheit, Angriff)
+    \item \textbf{Arms:} Offensive Fähigkeiten (Angriff, Kritische Chance, Rüsterungsdurchdringung)
+    \item \textbf{Legs:} Bewegungs-Fähigkeiten (Ausweichen, Rüstung, Gesundheit)
+\end{itemize}
+
+\subsection{Special Abilities}
+Parts können spezielle Fähigkeiten basierend auf ihrer Kategorie besitzen:
+
+\subsubsection{Guardian Abilities}
+\begin{itemize}
+    \item \textbf{Taunt:} Zwingt Gegner, diesen Minion anzugreifen
+    \item \textbf{Shield Wall:} Blockiert Angriffe auf Verbündete hinter diesem Minion
+    \item \textbf{Damage Sharing:} Teilt einen Prozentsatz des Schadens mit benachbarten Verbündeten
+\end{itemize}
+
+\subsubsection{Assault Abilities}
+\begin{itemize}
+    \item \textbf{Flanking:} Bonusschaden wenn von Randpositionen angreifend
+    \item \textbf{Focus Fire:} Erhöhter Schaden gegen Gegner unter 50\% HP
+    \item \textbf{Momentum:} Steigender Angriff pro Runde (zurückgesetzt bei Schaden)
+\end{itemize}
+
+\subsubsection{Marksman Abilities}
+\begin{itemize}
+    \item \textbf{Range Attack:} Kann hintere Reihe von hinten angreifen
+    \item \textbf{Overwatch:} Chance auf Konterangriff bei Verbündeten-Angriffen
+    \item \textbf{Hunter:} Massiver Bonusschaden gegen Gegner unter 25\% HP
+\end{itemize}
+
+\subsubsection{Support Abilities}
+\begin{itemize}
+    \item \textbf{Healing:} Heilt verwundete Verbündete pro Runde
+    \item \textbf{Inspiration:} Gibt benachbarten Verbündeten permanenten Angriffsbonus
+    \item \textbf{Battle Cry:} Einmaliger kampfweiter Angriffsbuff für alle Verbündeten
+\end{itemize}
+
+\subsubsection{Trickster Abilities}
+\begin{itemize}
+    \item \textbf{Mobility:} Kann Positionen mit Verbündeten tauschen
+    \item \textbf{Phase Step:} Chance, Schaden durch Positionstausch zu vermeiden
+    \item \textbf{Confuse:} Lässt Gegner zufällige Ziele angreifen
+\end{itemize}
+
+\subsection{Thematische Spezialisierung}
+
+\textbf{Bone Theme} (Aggressiv, präzise):
+\begin{itemize}
+    \item Hohe Affinität: Assault (60\%) und Marksman (30\%) Abilities
+    \item Schwerpunkt: Angriff, Kritische Treffer, Rüstungsdurchdringung
+\end{itemize}
+
+\textbf{Flesh Theme} (Defensiv, ausdauernd):
+\begin{itemize}
+    \item Hohe Affinität: Guardian (60\%) und Support (30\%) Abilities  
+    \item Schwerpunkt: Gesundheit, Verteidigung, Teamunterstützung
+\end{itemize}
+
+\textbf{Spirit Theme} (Vielseitig, unberechenbar):
+\begin{itemize}
+    \item Hohe Affinität: Trickster (40\%) und ausgewogene Verteilung
+    \item Schwerpunkt: Utility-Fähigkeiten, flexible Stat-Verteilung
+\end{itemize}
+
+\section{Steuerung}
+
+\subsection{Maussteuerung}
+\begin{itemize}
+    \item \textbf{Drag \& Drop:} Parts zwischen Inventar und Minionslots bewegen
+    \item \textbf{Rechtsklick:} Partdetails und Mergeoptionen anzeigen
+    \item \textbf{Linksklick:} Menüs bestätigen, Kampf starten
+\end{itemize}
+
+\section{Strategische Tiefe}
+
+\subsection{Build-Archetypen}
+\begin{itemize}
+    \item \textbf{Guardian Build:} Taunt + Shield Wall für maximalen Schutz
+    \item \textbf{Assault Build:} Flanking + Focus Fire für hohen Schaden
+    \item \textbf{Marksman Build:} Range Attack + Hunter für Fernkampfdominanz
+    \item \textbf{Support Build:} Healing + Inspiration für Teamunterstützung
+    \item \textbf{Trickster Build:} Mobility + Phase Step für Unberechenbarkeit
+\end{itemize}
+
+\subsection{Strategische Entscheidungen}
+\begin{itemize}
+    \item \textbf{Commitment vs. Flexibilität:} Slots für Macht opfern oder Vielseitigkeit bewahren
+    \item \textbf{Part-Verteilung:} Einen Superminion oder ausgewogenes Team erstellen
+    \item \textbf{Seltenheits-Abwägung:} Epic Part nehmen oder auf Synergie warten
+    \item \textbf{Counter-Strategien:} Gegnerische Builds antizipieren und kontern
+\end{itemize}

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d78d56de67b6dfd4d9b2acdb86e98e72, type: 3}
+  m_Name: VampiricFangs
+  m_EditorClassIdentifier: 
+  partName: Vampiric Fangs
+  icon: {fileID: -5156993582514690110, guid: 6db4750c7370e894a80f9cc75166394b, type: 3}
+  type: 0
+  theme: 0
+  rarity: 3
+  stats:
+    health: 0.15
+    attack: 0
+    defense: 0
+    attackSpeed: 0.08
+    critChance: 0.04
+    critDamage: 0
+    moveSpeed: 0
+    range: 0.06
+  specialAbility: 8
+  abilityValue: 0
+  description: Sharp fangs that mend wounds with each bite.
+  needsGeneration: 0
+  hpBonus: 0
+  attackBonus: 0

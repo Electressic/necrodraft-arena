@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860f94ad57aa1954f9ef08d8b462d96a, type: 3}
+  m_Name: Soul Binder
+  m_EditorClassIdentifier: 
+  className: Soul Binder
+  classIcon: {fileID: 260647055829060665, guid: 3d5f17232aece7746a28b388784a54ae, type: 3}
+  classDescription: 'Weavers of ethereal essence. '
+  specialtyKeyword: Spirit
+  specialtyDescription: Spirit parts gain +50% ATK and enhanced mobility
+  startingMinionType: {fileID: 0}
+  startingParts:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  hpBonusMultiplier: 1.2
+  attackBonusMultiplier: 1.5
+  guaranteedCardPool: []
+  bonusCardPicks: 1

@@ -1,0 +1,49 @@
+\documentclass[12pt, a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+
+\usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Hyperref-Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Spieldokumentation NecroDraft Arena},
+    pdfpagemode=FullScreen,
+}
+
+% Titel-Informationen
+\title{Spieldokumentation: NecroDraft Arena}
+\author{Maximilian Stricker}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\input{00_installation.tex}
+\input{01_uebersicht.tex}
+\input{02_gameplay.tex}
+\input{03_weitere_inhalte.tex}
+\input{04_technische_doku.tex}
+\input{05_entwicklungsprozess.tex}
+\input{06_spielanleitung.tex}
+\input{07_quellen.tex}
+\input{08_demo.tex}
+
+\end{document}
