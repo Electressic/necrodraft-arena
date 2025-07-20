@@ -56,7 +56,7 @@ Dieses Projekt ist ein Hochschulprototyp, der die Kernspielmechaniken demonstrie
 
 - [Releases](../../releases) - Download der spielbaren Version
 - [ProjectDocumentation_LaTeX](./ProjectDocumentation_LaTeX/) - Vollständige Projektdokumentation
-- [GameDesignDocument](./GameDesignDocument/) - Spieldesign-Dokumentation
+- [Technische_Demonstration](./Technische_Demonstration/) - Technische Demonstration mit Videos und Screenshots
 
 ---
 
